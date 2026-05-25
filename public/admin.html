@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Admin · La Rose Escala</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/svg+xml" href="assets/icon-192.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<!-- ═══ LOGIN ═══ -->
+<div id="login-screen">
+
+  <!-- Left panel — desktop only -->
+  <div class="login-panel-left">
+    <div>
+      <div class="lpl-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="28" height="28">
+          <path d="M12 2C9 2 7 5 7 8c0 4 5 9 5 14C12 17 17 12 17 8c0-3-2-6-5-6z"/>
+          <path d="M7 8c-2 0-4 1.5-4 3.5S5 15 7 15" opacity=".5"/>
+        </svg>
+      </div>
+      <div class="lpl-title">Gestão de<br>escalas online</div>
+      <div class="lpl-desc">Monte, publique e gerencie as escalas das duas lojas em um só lugar. Seus colaboradores acessam pelo link no celular.</div>
+    </div>
+    <div class="lpl-footer">La Rose Hortifruti · Sistema de escalas</div>
+  </div>
+
+  <!-- Right panel — form -->
+  <div class="login-panel-right">
+    <div class="login-form">
+      <div class="login-form__brand">
+        <div class="login-form__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+            <path d="M12 2C9 2 7 5 7 8c0 4 5 9 5 14C12 17 17 12 17 8c0-3-2-6-5-6z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="login-form__brand-name">La Rose</div>
+          <div class="login-form__brand-sub">Painel administrativo</div>
+        </div>
+      </div>
+      <div class="login-form__title">Bom dia 👋</div>
+      <div class="login-form__sub">Faça login para gerenciar as escalas</div>
+      <div class="field" style="margin-bottom:1rem">
+        <label for="inp-email">E-mail</label>
+        <input class="input" type="email" id="inp-email" placeholder="seu@email.com" autocomplete="email">
+      </div>
+      <div class="field" style="margin-bottom:1.5rem">
+        <label for="inp-pass">Senha</label>
+        <input class="input" type="password" id="inp-pass" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="login-form__btn" id="btn-login" onclick="doLogin()">Entrar</button>
+      <div class="login-error" id="login-error"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ APP ═══ -->
+<div id="app-screen">
+
+  <header class="admin-header" id="admin-header">
+    <div class="admin-header__inner">
+      <div class="ah-brand">
+        <div class="ah-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+            <path d="M12 2C9 2 7 5 7 8c0 4 5 9 5 14C12 17 17 12 17 8c0-3-2-6-5-6z"/>
+          </svg>
+        </div>
+        <span class="ah-name">La Rose</span>
+        <span class="ah-role">Admin</span>
+      </div>
+      <div class="ah-actions">
+        <div class="loja-tabs" id="loja-tabs"></div>
+        <button class="ah-btn ah-btn--ghost" onclick="openFuncManager()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Equipe</span>
+        </button>
+        <a href="index.html" target="_blank" class="ah-btn ah-btn--ghost">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span>Painel público</span>
+        </a>
+        <button class="ah-btn ah-btn--ghost" onclick="openHistoryModal()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <span>Histórico</span>
+        </button>
+        <button class="ah-btn ah-btn--ghost" onclick="openArchiveModal()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+          <span>Arquivo</span>
+        </button>
+        <button class="ah-btn ah-btn--ghost" onclick="exportSchedulePDF()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>PDF</span>
+        </button>
+        <button class="ah-btn ah-btn--danger" onclick="doLogout()">Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar">
+
+      <!-- Month picker -->
+      <div class="card">
+        <div class="card__head"><span class="card__label">Mês</span></div>
+        <div class="card__body">
+          <div class="year-nav">
+            <button class="year-btn" onclick="changeYear(-1)">‹</button>
+            <span class="year-val" id="year-label">2026</span>
+            <button class="year-btn" onclick="changeYear(1)">›</button>
+          </div>
+          <div class="mgrid" id="month-grid"></div>
+          <div class="mlegend">
+            <div class="mlegend__item"><div class="mlegend__dot" style="background:var(--green)"></div>Publicado</div>
+            <div class="mlegend__item"><div class="mlegend__dot" style="background:var(--amber)"></div>Rascunho</div>
+            <div class="mlegend__item"><div class="mlegend__dot" style="background:var(--n300)"></div>Vazio</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visibility / Publish -->
+      <div class="card">
+        <div class="card__head"><span class="card__label">Visibilidade</span></div>
+        <div class="card__body">
+          <div class="pub-block pub-block--empty" id="pub-block">
+            <div class="pub-block__icon" id="pub-icon">○</div>
+            <div class="pub-block__title" id="pub-title">Vazio</div>
+            <div class="pub-block__sub" id="pub-sub">Nenhum dado neste mês</div>
+          </div>
+          <button class="btn btn--success" id="btn-pub" onclick="publishToggle()">Publicar para funcionários</button>
+          <button class="btn btn--ghost btn--sm" onclick="saveSchedule(false)" style="width:100%;margin-bottom:5px">💾 Salvar rascunho</button>
+          <button class="btn btn--ghost btn--sm" onclick="openCopyModal()" style="width:100%;margin-bottom:5px">📋 Copiar mês anterior</button>
+          <button class="btn btn--ghost btn--sm" onclick="openPatternModal()" style="width:100%;margin-bottom:5px">📆 Padrão semanal</button>
+          <button class="btn btn--danger btn--sm" onclick="clearSchedule()" style="width:100%">🗑 Limpar mês</button>
+          <div class="save-status" id="save-status"></div>
+        </div>
+      </div>
+
+      <!-- Funcionários summary -->
+      <div class="card">
+        <div class="card__head"><span class="card__label">Funcionários</span></div>
+        <div class="card__body" id="func-summary">
+          <div style="font-size:.8125rem;color:var(--faint);font-style:italic">Selecione um mês</div>
+        </div>
+      </div>
+
+      <!-- CLT alerts -->
+      <div class="card">
+        <div class="card__head">
+          <span class="card__label">Alertas CLT</span>
+          <span id="clt-badge" class="badge badge--neutral">—</span>
+        </div>
+        <div class="card__body">
+          <div class="clt-list" id="clt-alerts">
+            <div class="no-clt">✓ Sem alertas</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Swap -->
+      <div class="card">
+        <div class="card__head"><span class="card__label">Trocas de turno</span></div>
+        <div class="card__body">
+          <button class="btn btn--ghost btn--sm" onclick="openSwapModal()" style="width:100%">🔄 Registrar troca</button>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ── EDITOR ── -->
+    <section class="editor">
+      <div class="editor-top">
+        <div>
+          <div class="editor-title" id="editor-title">—</div>
+          <div class="editor-sub">Arraste funcionários ou turnos para os dias</div>
+        </div>
+        <div class="mode-sw">
+          <button class="mode-sw__btn mode-sw__btn--on" id="mode-drag" onclick="setMode('drag')">✋ Arrastar</button>
+          <button class="mode-sw__btn" id="mode-click" onclick="setMode('click')">👆 Clicar</button>
+        </div>
+      </div>
+      <div id="fer-banner"></div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </section>
+
+    <!-- ── DRAG PANEL ── -->
+    <div class="drag-panel" id="drag-panel">
+      <div class="card">
+        <div class="card__head"><span class="card__label">Funcionários</span></div>
+        <div class="card__body" id="func-chips" style="display:flex;flex-direction:column;gap:6px"></div>
+      </div>
+      <div class="card">
+        <div class="card__head"><span class="card__label">Turnos</span></div>
+        <div class="card__body" style="display:flex;flex-direction:column;gap:5px">
+          <div id="turno-chips"></div>
+          <div class="offbtn" draggable="true" ondragstart="onDragStartFolga(event)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+            Folga
+          </div>
+          <div id="ausencia-chips" style="display:flex;flex-direction:column;gap:4px;margin-top:4px;padding-top:8px;border-top:1px solid var(--border)"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ TURNO POPUP ═══ -->
+<div class="turno-popup" id="turno-popup" style="display:none">
+  <div class="turno-popup__title">
+    <span>Escolher horário</span>
+    <button class="turno-popup__close" onclick="closePopup()">✕</button>
+  </div>
+  <div class="turno-popup__who" id="popup-who"></div>
+  <div class="turno-popup__grid" id="popup-grid"></div>
+  <div class="turno-popup__custom">
+    <input class="input" type="text" id="popup-time" placeholder="08:00–16:20" maxlength="12" style="font-size:.8125rem">
+    <button class="btn btn--primary btn--sm" onclick="confirmCustomTime()">✓</button>
+  </div>
+</div>
+
+<!-- ═══ DAY MODAL ═══ -->
+<div class="overlay" id="hol-modal" style="display:none" onclick="closeHolOuter(event)">
+  <div class="modal">
+    <div class="modal__head">
+      <h2 class="modal__title" id="hol-title">Dia —</h2>
+      <button class="modal__close" onclick="closeHolModal()">✕</button>
+    </div>
+    <div class="modal__body">
+      <div style="margin-bottom:1.25rem">
+        <div class="sec-label">Tipo do dia</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:.75rem;background:var(--n50);border-radius:var(--r6);border:1px solid var(--border)">
+          <label for="htog" style="font-size:.875rem;font-weight:600;cursor:pointer">Marcar como feriado</label>
+          <label class="toggle">
+            <input type="checkbox" id="htog" onchange="toggleHol()">
+            <span class="toggle__track"></span>
+            <span class="toggle__knob"></span>
+          </label>
+        </div>
+        <div id="hnwrap" style="display:none;margin-top:8px">
+          <input class="input" type="text" id="hname" placeholder="Nome do feriado (ex: Corpus Christi)">
+        </div>
+      </div>
+      <div id="hol-shifts-sec">
+        <div class="sec-label">Turnos</div>
+        <div id="hol-shifts-list"></div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:.75rem;padding:.875rem;background:var(--n50);border-radius:var(--r6);border:1px solid var(--border)">
+          <div class="field" style="flex:1;min-width:110px">
+            <label>Funcionário</label>
+            <select class="input" id="sfunc" style="cursor:pointer"></select>
+          </div>
+          <div class="field" style="flex:1;min-width:110px">
+            <label>Turno</label>
+            <select class="input" id="spreset" onchange="applyPreset()" style="cursor:pointer"></select>
+          </div>
+          <div class="field">
+            <label>Horário</label>
+            <input class="input" type="text" id="itime" placeholder="08:00–16:20" maxlength="12" style="width:110px">
+          </div>
+          <button class="btn btn--primary btn--sm" onclick="addModalShift()" style="align-self:flex-end">+ Turno</button>
+        </div>
+      </div>
+      <div id="hol-folgas-sec" style="margin-top:1.25rem">
+        <div class="sec-label">Folgas</div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px" id="hol-folga-grid"></div>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost btn--sm" onclick="closeHolModal()">Cancelar</button>
+      <button class="btn btn--primary btn--sm" onclick="saveDay()">✓ Salvar dia</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SWAP MODAL ═══ -->
+<div class="overlay" id="swap-modal" style="display:none" onclick="closeSwapOuter(event)">
+  <div class="modal">
+    <div class="modal__head">
+      <h2 class="modal__title">🔄 Registrar troca de turno</h2>
+      <button class="modal__close" onclick="closeSwapModal()">✕</button>
+    </div>
+    <div class="modal__body">
+      <p style="font-size:.875rem;color:var(--muted);margin-bottom:1.25rem;line-height:1.6;font-weight:500">Registre a troca entre dois funcionários. Os turnos serão movidos no calendário.</p>
+      <div style="margin-bottom:1.25rem">
+        <div class="sec-label">Funcionário A</div>
+        <div class="swap-grid">
+          <div class="swap-f"><label>Funcionário</label><select class="input" id="sw-fa" style="cursor:pointer"></select></div>
+          <div class="swap-f"><label>Dia original</label><input class="input" type="number" id="sw-da" min="1" max="31" placeholder="Ex: 10"></div>
+          <div class="swap-f"><label>Novo dia</label><input class="input" type="number" id="sw-da-new" min="1" max="31" placeholder="Ex: 15"></div>
+        </div>
+      </div>
+      <div style="margin-bottom:1.25rem">
+        <div class="sec-label">Funcionário B</div>
+        <div class="swap-grid">
+          <div class="swap-f"><label>Funcionário</label><select class="input" id="sw-fb" style="cursor:pointer"></select></div>
+          <div class="swap-f"><label>Dia original</label><input class="input" type="number" id="sw-db" min="1" max="31" placeholder="Ex: 15"></div>
+          <div class="swap-f"><label>Novo dia</label><input class="input" type="number" id="sw-db-new" min="1" max="31" placeholder="Ex: 10"></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Motivo (opcional)</label>
+        <input class="input" type="text" id="sw-reason" placeholder="Ex: Consulta médica">
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost btn--sm" onclick="closeSwapModal()">Cancelar</button>
+      <button class="btn btn--primary btn--sm" onclick="confirmSwap()">✓ Confirmar troca</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ HISTORY MODAL ═══ -->
+<div class="overlay" id="history-modal" style="display:none" onclick="closeHistOuter(event)">
+  <div class="modal" style="max-width:600px">
+    <div class="modal__head">
+      <h2 class="modal__title">📋 Histórico de alterações</h2>
+      <button class="modal__close" onclick="closeHistModal()">✕</button>
+    </div>
+    <div class="modal__body" id="hist-body">
+      <div class="loading-state"><div class="spinner spinner--sm"></div> Carregando…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ARCHIVE MODAL ═══ -->
+<div class="overlay" id="archive-modal" style="display:none" onclick="closeArchiveOuter(event)">
+  <div class="modal" style="max-width:700px">
+    <div class="modal__head">
+      <h2 class="modal__title" id="arch-title">🗂 Escalas anteriores</h2>
+      <button class="modal__close" onclick="closeArchiveModal()">✕</button>
+    </div>
+    <div class="modal__body" id="arch-body">
+      <div class="loading-state"><div class="spinner spinner--sm"></div> Carregando…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ COPY MODAL ═══ -->
+<div class="overlay" id="copy-modal" style="display:none" onclick="closeCopyOuter(event)">
+  <div class="modal" style="max-width:420px">
+    <div class="modal__head">
+      <h2 class="modal__title">📋 Copiar mês anterior</h2>
+      <button class="modal__close" onclick="closeCopyModal()">✕</button>
+    </div>
+    <div class="modal__body">
+      <p style="font-size:.875rem;color:var(--muted);margin-bottom:1.25rem;line-height:1.6;font-weight:500">
+        Escolha um mês como base para <strong id="copy-target">—</strong>.
+      </p>
+      <div id="copy-list">
+        <div class="loading-state"><div class="spinner spinner--sm"></div></div>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost btn--sm" onclick="closeCopyModal()">Cancelar</button>
+      <button class="btn btn--primary btn--sm" id="btn-confirm-copy" onclick="confirmCopy()" disabled style="opacity:.4">Copiar para este mês</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PATTERN MODAL ═══ -->
+<div class="overlay" id="pattern-modal" style="display:none" onclick="closePatternOuter(event)">
+  <div class="modal" style="max-width:480px">
+    <div class="modal__head">
+      <h2 class="modal__title">📆 Padrão semanal</h2>
+      <button class="modal__close" onclick="closePatternModal()">✕</button>
+    </div>
+    <div class="modal__body">
+      <p style="font-size:.875rem;color:var(--muted);margin-bottom:1.25rem;line-height:1.6;font-weight:500">Defina quem trabalha em cada dia da semana. O sistema preenche o mês inteiro. Feriados já marcados são preservados.</p>
+      <div class="field" style="margin-bottom:1.25rem">
+        <label>Turno padrão</label>
+        <select class="input" id="pattern-turno" style="cursor:pointer"></select>
+      </div>
+      <div id="pattern-rows"></div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost btn--sm" onclick="closePatternModal()">Cancelar</button>
+      <button class="btn btn--primary btn--sm" onclick="applyPattern()">Aplicar ao mês</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FUNC MANAGER MODAL ═══ -->
+<div class="overlay" id="func-modal" style="display:none" onclick="closeFuncOuter(event)">
+  <div class="modal" style="max-width:440px">
+    <div class="modal__head">
+      <h2 class="modal__title" id="func-modal-title">👥 Equipe</h2>
+      <button class="modal__close" onclick="closeFuncModal()">✕</button>
+    </div>
+    <div class="modal__body">
+      <div id="func-list" class="func-manager-list" style="margin-bottom:1rem"></div>
+      <div class="sec-label">Adicionar funcionário</div>
+      <div class="field" style="margin-bottom:.75rem">
+        <label>Nome completo</label>
+        <input class="input" type="text" id="fnew-name" placeholder="Ex: Maria Silva" maxlength="40">
+      </div>
+      <div class="field" style="margin-bottom:.75rem">
+        <label>Chave (gerada automaticamente)</label>
+        <input class="input" type="text" id="fnew-key" placeholder="mariasilva" maxlength="20">
+      </div>
+      <div class="field" style="margin-bottom:1rem">
+        <label>Cor</label>
+        <div class="func-colors" id="func-colors"></div>
+      </div>
+      <button class="btn btn--primary btn--sm" onclick="addFuncLocal()" style="width:100%">+ Adicionar funcionário</button>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost btn--sm" onclick="closeFuncModal()">Fechar</button>
+      <button class="btn btn--primary btn--sm" onclick="saveFuncs()">💾 Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/admin.js"></script>
+
+<!-- Turno manager modal -->
+<div class="overlay" id="turno-modal" style="display:none" onclick="closeTurnoOuter(event)">
+  <div class="modal" style="max-width:440px">
+    <div class="modal__head">
+      <h2 class="modal__title">⏱ Gerenciar Turnos</h2>
+      <button class="modal__close" onclick="closeTurnoModal()">✕</button>
+    </div>
+    <div class="modal__body">
+      <p style="font-size:.8125rem;color:var(--muted);margin-bottom:1rem;line-height:1.6">
+        Crie, renomeie ou remova turnos. Turnos personalizados aparecem nos botões rápidos ao arrastar funcionários.
+      </p>
+      <div class="sec-label">Turnos ativos</div>
+      <div id="turno-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:1.25rem"></div>
+      <div class="sec-label">Adicionar turno</div>
+      <div style="display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap">
+        <div class="field" style="flex:1;min-width:90px">
+          <label>Nome</label>
+          <input class="input" id="new-turno-label" placeholder="Ex: Hora extra" style="height:36px">
+        </div>
+        <div class="field" style="flex:1;min-width:110px">
+          <label>Horário</label>
+          <input class="input" id="new-turno-value" placeholder="07:30–17:30" style="height:36px;font-family:var(--mono)">
+        </div>
+        <button class="btn btn--primary btn--sm" onclick="addTurno()" style="height:36px">+</button>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost btn--sm" onclick="closeTurnoModal()">Cancelar</button>
+      <button class="btn btn--primary btn--sm" onclick="saveTurnosAndClose()">Salvar turnos</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

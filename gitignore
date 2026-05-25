@@ -1,0 +1,15 @@
+# Firebase
+.firebase/
+.firebaserc
+
+# Sensitive config — never commit
+public/js/firebase-config.js
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+*.log
+node_modules/
