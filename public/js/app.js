@@ -263,7 +263,7 @@ async function render() {
       });
       (dd.folgam||[]).forEach(k=>{
         const f=fByKey(k);
-        h+=`<div class="off-badge">⛱ ${f.label.split(' ')[0]}</div>`;
+        h+=`<div class="off-badge" style="background:var(--green);border-color:var(--green)">⛱FOLGA:${f.label.split(' ')[0]}</div>`;
       });
       (dd.ausencias||[]).filter(a=>!isF||a.key===filter).forEach(a=>{
         const f=fByKey(a.key);
@@ -283,7 +283,7 @@ async function render() {
           <div class="legend__sw" style="background:${f.bg};border-color:${f.text}"></div>
           ${f.label}
         </div>`).join('')}
-      <div class="legend__off">⛱ Folga</div>
+      <div class="legend__off" style="background:var(--green);border-color:var(--green)">⛱ Folga</div>
       ${AUSENCIAS.map(a=>`
         <div class="legend__item legend__item--aus" style="background:${a.bg};color:${a.text};border-color:${a.border}">
           <span>${a.icon}</span>${a.label}
@@ -298,10 +298,18 @@ async function render() {
 window.setFilter = key => { filter=key; cache={}; render(); };
 
 window.exportPDF = () => {
-  const prev=document.title;
-  document.title=`Escala-LaRose-${MONTHS[now.getMonth()]}-${now.getFullYear()}`;
+  // Ensure print header has store + month info
+  let ph = document.querySelector('.print-header');
+  if (ph) {
+    ph.querySelector('.print-header__title').textContent =
+      `La Rose · ${lojaData ? lojaData.label : ''}`;
+    ph.querySelector('.print-header__sub').textContent =
+      `Escala de ${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
+  }
+  const prev = document.title;
+  document.title = `Escala-LaRose-${MONTHS[now.getMonth()]}-${now.getFullYear()}`;
   window.print();
-  document.title=prev;
+  document.title = prev;
 };
 
 // ── Day tap expand (mobile) ───────────────────

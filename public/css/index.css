@@ -203,21 +203,21 @@
 .profile__stat:last-child { border-right: none; }
 .profile__stat-v { font-size: 2.25rem; font-weight: 800; letter-spacing: -.04em; line-height: 1; }
 .profile__stat-l { font-size: .5625rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-top: 5px; }
-.profile__stat--off { background: var(--orange-lt); }
-.profile__stat--off .profile__stat-v { color: var(--orange); }
+.profile__stat--off { background: var(--green-lt); }
+.profile__stat--off .profile__stat-v { color: var(--green); }
 
-.profile__off-strip { padding: .875rem 1.125rem; border-top: 1px solid var(--orange-b); background: var(--orange-lt); }
-.profile__off-title { font-size: .625rem; font-weight: 700; color: var(--orange-d); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .625rem; display: flex; align-items: center; gap: 6px; }
+.profile__off-strip { padding: .875rem 1.125rem; border-top: 1px solid var(--green-b); background: var(--green-lt); }
+.profile__off-title { font-size: .625rem; font-weight: 700; color: var(--green-d); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .625rem; display: flex; align-items: center; gap: 6px; }
 .profile__off-days  { display: flex; flex-wrap: wrap; gap: 6px; }
 .off-day {
   display: flex; align-items: center; gap: 5px;
-  background: var(--surface); border: 2px solid var(--orange);
+  background: var(--surface); border: 2px solid var(--green);
   color: var(--orange-d); font-size: .8125rem; font-weight: 800;
   padding: 4px 11px; border-radius: var(--r4); min-height: 32px;
   box-shadow: 0 1px 3px rgba(234,88,12,.15);
   letter-spacing: -.01em;
 }
-.off-day__wd { font-size: .625rem; font-weight: 600; color: var(--orange); opacity: .8; }
+.off-day__wd { font-size: .625rem; font-weight: 600; color: var(--green); opacity: .8; }
 
 /* ── Calendar ── */
 .calendar { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
@@ -274,12 +274,11 @@
 .cal-day--work  { background: var(--surface); border-color: var(--loja-color); }
 /* Off day (filtered) = strong orange */
 .cal-day--off   {
-  background: #fff3e8;
-  border: 2px solid var(--orange) !important;
-  box-shadow: 0 0 0 3px rgba(234,88,12,.15);
+  background: var(--green-lt);
+  border: 2px solid var(--green) !important;
+  box-shadow: 0 0 0 3px rgba(22,163,74,.15);
 }
-.cal-day--off .cal-day__num { color: var(--orange); font-weight: 800; }
-.cal-day--off .cal-day__num { color: var(--orange); font-weight: 800; }
+.cal-day--off .cal-day__num { color: var(--green-d); font-weight: 800; }
 
 .cal-day__num {
   font-size: .625rem; font-weight: 800; color: var(--n500);
@@ -317,9 +316,9 @@
 .off-badge {
   display: flex; align-items: center; gap: 3px;
   font-size: .5625rem; padding: 3px 6px; border-radius: 4px; margin-bottom: 2px;
-  background: var(--orange); color: #fff;
-  font-weight: 800; border: 1.5px solid var(--orange);
-  box-shadow: 0 1px 3px rgba(234,88,12,.3);
+  background: var(--green); color: #fff;
+  font-weight: 800; border: 1.5px solid var(--green);
+  box-shadow: 0 1px 3px rgba(22,163,74,.3);
 }
 /* Ausência badge — atestado, férias, licença etc. */
 .ausencia-badge {
@@ -346,11 +345,11 @@
 .off-hero__text {
   font-size: .625rem; font-weight: 800;
   text-transform: uppercase; letter-spacing: .05em;
-  background: var(--orange); color: #fff;
+  background: var(--green); color: #fff;
   padding: 2px 7px; border-radius: 999px;
-  box-shadow: 0 1px 3px rgba(234,88,12,.3);
+  box-shadow: 0 1px 3px rgba(22,163,74,.3);
 }
-.off-hero__name { font-size: .5rem; font-weight: 700; color: var(--orange-d); opacity: .75; }
+.off-hero__name { font-size: .5rem; font-weight: 700; color: var(--green-d); opacity: .75; }
 
 .hol-label {
   font-size: .5rem; font-weight: 700; color: #dc2626;
@@ -370,7 +369,7 @@
 .legend__items { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
 .legend__item  { display: flex; align-items: center; gap: 7px; font-size: .8125rem; font-weight: 700; color: var(--n700); letter-spacing: -.01em; }
 .legend__sw    { width: 18px; height: 18px; border-radius: 5px; flex-shrink: 0; border: 2px solid rgba(0,0,0,.12); box-shadow: var(--s1); }
-.legend__off   { display: flex; align-items: center; gap: 7px; font-size: .8125rem; font-weight: 700; color: #fff; padding: 4px 12px; border-radius: 999px; background: var(--orange); border: 1.5px solid var(--orange); box-shadow: 0 1px 4px rgba(234,88,12,.3); }
+.legend__off   { display: flex; align-items: center; gap: 7px; font-size: .8125rem; font-weight: 700; color: #fff; padding: 4px 12px; border-radius: 999px; background: var(--green); border: 1.5px solid var(--green); box-shadow: 0 1px 4px rgba(22,163,74,.3); }
 .legend__item--aus {
   padding: 3px 10px; border-radius: 999px;
   border: 1.5px solid transparent;
