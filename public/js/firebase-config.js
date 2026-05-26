@@ -2,12 +2,12 @@
 //  La Rose Escala · Firebase Config
 // ─────────────────────────────────────────────
 export const FIREBASE_CONFIG = {
-  apiKey:            "AIzaSyBI18jcxoehYL_2Fs8o82SqiqBTZTVVzEQ",
-  authDomain:        "larose-escala.firebaseapp.com",
-  projectId:         "larose-escala",
-  storageBucket:     "larose-escala.firebasestorage.app",
-  messagingSenderId: "120340322283",
-  appId:             "1:120340322283:web:4099a841830d219b6eabae"
+  apiKey:            "",
+  authDomain:        "",
+  projectId:         "",
+  storageBucket:     "",
+  messagingSenderId: "",
+  appId:             ""
 };
 
 // ─────────────────────────────────────────────
