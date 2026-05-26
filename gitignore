@@ -1,15 +1,47 @@
-# Firebase
+# ─────────────────────────────────────────────
+#  La Rose Escala · .gitignore
+# ─────────────────────────────────────────────
+
+# Firebase CLI cache — gerado automaticamente, nunca commitar
 .firebase/
+*.cache
+
+# Firebase project config — pode conter dados sensíveis
 .firebaserc
 
-# Sensitive config — never commit
+# ⚠️  SEGURANÇA — credenciais do Firebase, NUNCA commitar
 public/js/firebase-config.js
 
-# OS
-.DS_Store
-Thumbs.db
+# Use firebase-config.example.js como template para novos devs
 
-# Editor
-.vscode/
-*.log
+# ── Dependências ──────────────────────────────
 node_modules/
+.npm/
+
+# ── Sistema operacional ───────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# ── Editores ──────────────────────────────────
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# ── Logs e temporários ────────────────────────
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+.env.local
+.env.production

@@ -193,12 +193,16 @@
 
     <!-- ── DRAG PANEL ── -->
     <div class="drag-panel" id="drag-panel">
+      <div class="drag-panel__tip">👆 Toque num item, depois toque no dia do calendário</div>
       <div class="card">
         <div class="card__head"><span class="card__label">Funcionários</span></div>
         <div class="card__body" id="func-chips" style="display:flex;flex-direction:column;gap:6px"></div>
       </div>
       <div class="card">
-        <div class="card__head"><span class="card__label">Turnos</span></div>
+        <div class="card__head">
+          <span class="card__label">Turnos</span>
+          <button class="btn btn--ghost btn--sm" onclick="openTurnoManager()" style="height:22px;padding:0 7px;font-size:.625rem">+ Criar</button>
+        </div>
         <div class="card__body" style="display:flex;flex-direction:column;gap:5px">
           <div id="turno-chips"></div>
           <div class="offbtn" draggable="true" ondragstart="onDragStartFolga(event)">
@@ -419,6 +423,35 @@
 </div>
 
 <script type="module" src="js/admin.js"></script>
+
+<!-- Copy day modal -->
+<div class="overlay" id="copy-day-modal" style="display:none" onclick="if(event.target===this)closeCopyDayModal()">
+  <div class="modal" style="max-width:360px">
+    <div class="modal__head">
+      <h2 class="modal__title">Copiar dia para outro</h2>
+      <button class="modal__close" onclick="closeCopyDayModal()">✕</button>
+    </div>
+    <div class="modal__body">
+      <p style="font-size:.8125rem;color:var(--muted);margin-bottom:1.25rem;line-height:1.6">
+        Turnos, folgas e ausências do dia <strong id="copy-from-label">—</strong> serão copiados para o dia de destino.
+      </p>
+      <div class="field">
+        <label>Copiar para o dia</label>
+        <input class="input" type="number" id="copy-to-day" min="1" max="31" placeholder="Ex: 15">
+      </div>
+      <div style="margin-top:.75rem;font-size:.8125rem;color:var(--muted)">
+        <label style="display:flex;align-items:center;gap:7px;cursor:pointer">
+          <input type="checkbox" id="copy-append" style="width:15px;height:15px">
+          Adicionar ao dia destino (não substituir)
+        </label>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost btn--sm" onclick="closeCopyDayModal()">Cancelar</button>
+      <button class="btn btn--primary btn--sm" onclick="confirmCopyDay()">Copiar</button>
+    </div>
+  </div>
+</div>
 
 <!-- Turno manager modal -->
 <div class="overlay" id="turno-modal" style="display:none" onclick="closeTurnoOuter(event)">

@@ -39,6 +39,21 @@ let patternState = {};
 
 // ── Helpers ───────────────────────────────────
 const mKey   = (y,m) => `${y}-${String(m+1).padStart(2,'0')}`;
+
+// Parse hours from shift string "08:00–16:20" → minutes
+function shiftMinutes(timeStr) {
+  if (!timeStr) return 0;
+  const parts = timeStr.split(/[–\-]/);
+  if (parts.length < 2) return 0;
+  const [sh,sm] = parts[0].trim().split(':').map(Number);
+  const [eh,em] = parts[1].trim().split(':').map(Number);
+  if (isNaN(sh)||isNaN(eh)) return 0;
+  let mins = (eh*60+em) - (sh*60+sm);
+  if (mins < 0) mins += 1440; // overnight
+  return mins;
+}
+// Standard shift is 8h20 (500 min) — CLT base
+const BASE_SHIFT_MINS = 500;
 const col    = id => `escalas_${id}`;
 const fByKey = k => funcs.find(x => x.key===k) || { bg:'#f1f5f9', text:'#475569', border:'#e2e8f0', label:k, key:k };
 const lojaInfo = () => LOJAS.find(l => l.id===lojaId);
@@ -289,7 +304,12 @@ async function loadFerBanner() {
   const chips = all.map(f => {
     const fd = parseInt(f.date.split('-')[2]);
     const wd = WD[new Date(vY,vM,fd).getDay()];
-    return `<div class="feriado-chip"><span>${fd} ${wd}</span>${f.source==='DF'?'<span style="opacity:.6;font-size:.5625rem">DF</span>':''}<span>${f.name}</span></div>`;
+    return `<div class="feriado-chip">
+      <span class="feriado-chip__date">${fd}</span>
+      <span class="feriado-chip__wd">${wd}</span>
+      ${f.source==='DF'?'<span class="feriado-chip__tag">DF</span>':''}
+      <span class="feriado-chip__name">${f.name}</span>
+    </div>`;
   }).join('');
   banner.innerHTML = `<div class="feriados-banner">
     <div class="feriados-banner__header">
@@ -357,8 +377,25 @@ function renderSidebar() {
     (d.shifts||[]).forEach(s => { if(cnt[s.key]) cnt[s.key].s++; });
     (d.folgam||[]).forEach(k => { if(cnt[k])     cnt[k].f++;    });
   });
+  // Compute total minutes and extras per func
+  const mins = {};
+  funcs.forEach(f => mins[f.key] = 0);
+  Object.values(sched).forEach(d => {
+    (d.shifts||[]).forEach(s => {
+      if (mins[s.key] !== undefined) mins[s.key] += shiftMinutes(s.time);
+    });
+  });
+
   document.getElementById('func-summary').innerHTML = funcs.map(f => {
     const ini = f.label.split(' ').map(w=>w[0]).slice(0,2).join('');
+    const totalMin  = mins[f.key] || 0;
+    const extraMin  = Math.max(0, totalMin - cnt[f.key].s * BASE_SHIFT_MINS);
+    const extraH    = Math.floor(extraMin / 60);
+    const extraM    = extraMin % 60;
+    const extraStr  = extraMin > 0
+      ? `${extraH}h${extraM>0?extraM+'m':''}`
+      : '—';
+    const extraColor = extraMin > 0 ? 'color:var(--green-d)' : 'color:var(--faint)';
     return `<div class="func-row">
       <div class="func-row__avatar" style="background:${f.bg};color:${f.text};border-color:${f.border}">${ini}</div>
       <div class="func-row__body">
@@ -372,6 +409,10 @@ function renderSidebar() {
             <span class="func-row__stat-v" style="color:var(--orange)">${cnt[f.key].f}</span>
             <span class="func-row__stat-l">Folgas</span>
           </div>
+          <div class="func-row__stat">
+            <span class="func-row__stat-v" style="font-size:.75rem;${extraColor}">${extraStr}</span>
+            <span class="func-row__stat-l">H. extra</span>
+          </div>
         </div>
       </div>
     </div>`;
@@ -384,6 +425,42 @@ function renderEditor() {
   const dim = new Date(vY,vM+1,0).getDate();
   const fw  = new Date(vY,vM,1).getDay();
   document.getElementById('editor-title').textContent = `${ML[vM]} ${vY} · ${lojaInfo().nome}`;
+
+  // Inject print header (shown only in @media print)
+  let ph = document.getElementById('print-header-admin-el');
+  if (!ph) {
+    ph = document.createElement('div');
+    ph.id = 'print-header-admin-el';
+    ph.className = 'print-header-admin';
+    document.querySelector('.editor').prepend(ph);
+  }
+  ph.innerHTML = `
+    <div class="print-header-admin__title">La Rose · ${lojaInfo().label}</div>
+    <div class="print-header-admin__sub">Escala de ${ML[vM]} ${vY} · Impresso em ${new Date().toLocaleDateString('pt-BR')}</div>`;
+
+  // Build print legend
+  let printLeg = document.getElementById('print-legend-admin');
+  if (!printLeg) {
+    printLeg = document.createElement('div');
+    printLeg.id = 'print-legend-admin';
+    printLeg.className = 'print-legend';
+    document.querySelector('.editor')?.appendChild(printLeg);
+  }
+  printLeg.innerHTML = funcs.map(f =>
+    `<span style="display:inline-flex;align-items:center;gap:5px;font-size:.75rem;font-weight:600;margin-right:8px">
+      <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${f.bg};border:1.5px solid ${f.border}"></span>
+      ${f.label}
+    </span>`
+  ).join('') +
+  `<span style="display:inline-flex;align-items:center;gap:5px;font-size:.75rem;font-weight:600;margin-right:8px">
+    <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#ea580c"></span>⛱ Folga
+  </span>` +
+  AUSENCIAS.map(a =>
+    `<span style="display:inline-flex;align-items:center;gap:5px;font-size:.75rem;font-weight:600;margin-right:8px">
+      <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${a.bg};border:1.5px solid ${a.border}"></span>
+      ${a.icon} ${a.label}
+    </span>`
+  ).join('');
   const g = document.getElementById('cal-grid'); g.innerHTML='';
   WD.forEach((w,i) => {
     const h=document.createElement('div'); h.className='cal-wday'+(i===0||i===6?' cal-wday--we':''); h.textContent=w; g.appendChild(h);
@@ -398,10 +475,16 @@ function renderEditor() {
     cell.addEventListener('dragover', e=>onDragOver(e,d));
     cell.addEventListener('dragleave', e=>onDragLeave(e,d));
     cell.addEventListener('drop', e=>onDrop(e,d));
-    cell.addEventListener('click', () => { if(editorMode==='click') openHolModal(d); });
+    cell.addEventListener('click', () => {
+      if (mobilePendingType) { handleMobileCellTap(d); return; }
+      if (editorMode==='click') openHolModal(d);
+    });
     let inner = `<div class="cal-cell__num">
       <span class="cal-cell__num-val">${d}${isToday?'&nbsp;<span class="today-dot">HOJE</span>':''}</span>
-      <button class="cal-cell__opts" onclick="event.stopPropagation();openHolModal(${d})" title="Opções">•••</button>
+      <span style="display:flex;gap:2px">
+        <button class="cal-cell__opts" onclick="event.stopPropagation();openCopyDayModal(${d})" title="Copiar dia" style="font-size:.75rem;opacity:.5">⎘</button>
+        <button class="cal-cell__opts" onclick="event.stopPropagation();openHolModal(${d})" title="Opções">•••</button>
+      </span>
     </div>`;
     // Holiday label — but STILL show shifts (store may open on holidays)
     if (data.type==='holiday') {
@@ -437,6 +520,8 @@ function renderEditor() {
 }
 
 // ── Drag panel ────────────────────────────────
+function isTouchDevice() { return ('ontouchstart' in window) || navigator.maxTouchPoints > 0; }
+
 function buildDragPanel() {
   const fc=document.getElementById('func-chips'); fc.innerHTML='';
   // Build ausencia chips
@@ -444,6 +529,7 @@ function buildDragPanel() {
   if(ac){ac.innerHTML=AUSENCIAS.map(a=>`
     <div class="ausencia-drag" draggable="true"
       ondragstart="onDragStartAusencia(event,'${a.key}')"
+      onclick="mobileAusencia('${a.key}')"
       style="background:${a.bg};color:${a.text};border-color:${a.border}"
       title="${a.label}">
       <span>${a.icon}</span><span>${a.label}</span>
@@ -454,6 +540,7 @@ function buildDragPanel() {
     el.innerHTML=`<div class="func-drag__dot" style="background:${f.text}60"></div><span style="flex:1">${f.label}</span><span class="func-drag__handle">⠿</span>`;
     el.addEventListener('dragstart', e=>onDragStartFunc(e,f.key));
     el.addEventListener('dragend',   ()=>el.classList.remove('func-drag--dragging'));
+    el.addEventListener('click',     ()=>mobileSelectFunc(f.key));
     fc.appendChild(el);
   });
   const tc=document.getElementById('turno-chips'); tc.innerHTML='';
@@ -462,6 +549,7 @@ function buildDragPanel() {
     el.innerHTML=`<span>${t.label}</span><span class="turno-drag__time">${t.value}</span>`;
     el.addEventListener('dragstart', e=>onDragStartTurno(e,t));
     el.addEventListener('dragend',   ()=>el.classList.remove('func-drag--dragging'));
+    el.addEventListener('click',     ()=>mobileSelectTurno(t));
     tc.appendChild(el);
   });
 }
@@ -841,10 +929,8 @@ window.closePatternOuter=e=>{if(e.target===document.getElementById('pattern-moda
 
 // ── PDF Export (admin) ────────────────────────
 window.exportSchedulePDF = () => {
-  const ML_ = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
-               'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   const prev = document.title;
-  document.title = `Escala-${lojaInfo().nome}-${ML_[vM]}-${vY}`;
+  document.title = `Escala-LaRose-${lojaInfo().nome.replace(/ /g,'-')}-${ML[vM]}-${vY}`;
   window.print();
   document.title = prev;
 };
@@ -852,17 +938,25 @@ window.exportSchedulePDF = () => {
 
 // ── Funcionários Manager ──────────────────────
 // Colors palette for new employees
+// Color palette: 12 distinct, high-contrast, professional colors
+// Each has strong readable text, clear background, and visible border
+// Avoids confusion with absence types (red, blue, purple, amber, soft-green)
 const FUNC_COLORS = [
-  { bg:'#eff6ff', text:'#1e40af', border:'#bfdbfe', label:'Azul'    },
-  { bg:'#fdf2f8', text:'#86198f', border:'#f0abfc', label:'Rosa'    },
-  { bg:'#f0fdf4', text:'#166534', border:'#bbf7d0', label:'Verde'   },
-  { bg:'#fffbeb', text:'#92400e', border:'#fde68a', label:'Âmbar'   },
-  { bg:'#faf5ff', text:'#6b21a8', border:'#e9d5ff', label:'Roxo'    },
-  { bg:'#fff7ed', text:'#9a3412', border:'#fdba74', label:'Laranja' },
-  { bg:'#f0f9ff', text:'#075985', border:'#7dd3fc', label:'Ciano'   },
-  { bg:'#fdf4ff', text:'#701a75', border:'#e879f9', label:'Fucsia'  },
-  { bg:'#f7fee7', text:'#3f6212', border:'#a3e635', label:'Lima'    },
-  { bg:'#fff1f2', text:'#9f1239', border:'#fda4af', label:'Vermelho'},
+  // Warm spectrum
+  { bg:'#fff0f6', text:'#9d174d', border:'#f9a8d4', label:'Rosa'     }, // hot-pink — vivid
+  { bg:'#fff7ed', text:'#c2410c', border:'#fb923c', label:'Laranja'   }, // deep-orange
+  { bg:'#fefce8', text:'#854d0e', border:'#fbbf24', label:'Dourado'   }, // golden-yellow
+  // Cool spectrum
+  { bg:'#ecfdf5', text:'#065f46', border:'#34d399', label:'Esmeralda' }, // emerald-green
+  { bg:'#e0fdfa', text:'#164e63', border:'#22d3ee', label:'Cyan'      }, // cyan-teal
+  { bg:'#eff6ff', text:'#1d4ed8', border:'#60a5fa', label:'Azul'      }, // royal-blue
+  { bg:'#f5f3ff', text:'#5b21b6', border:'#a78bfa', label:'Violeta'   }, // violet
+  // Neutral-warm
+  { bg:'#fdf2ff', text:'#7e22ce', border:'#c084fc', label:'Púrpura'   }, // purple
+  { bg:'#fef2f2', text:'#b91c1c', border:'#f87171', label:'Vermelho'  }, // red (kept for its uniqueness)
+  { bg:'#f0fdf4', text:'#15803d', border:'#4ade80', label:'Verde'     }, // bright-green
+  { bg:'#fff1f2', text:'#be123c', border:'#fb7185', label:'Rose'      }, // rose-coral
+  { bg:'#fafafa', text:'#374151', border:'#9ca3af', label:'Cinza'     }, // slate-gray
 ];
 
 let funcEditList = []; // working copy
@@ -910,8 +1004,9 @@ function renderColorPicker() {
   const el = document.getElementById('func-colors');
   el.innerHTML = FUNC_COLORS.map((col, i) => `
     <div class="color-opt ${i===selectedColor?'color-opt--on':''}"
-      style="background:${col.bg};border-color:${i===selectedColor?col.text:'transparent'}"
+      style="background:${col.bg};border-color:${i===selectedColor?col.text:'rgba(0,0,0,.08)'}"
       onclick="selectColor(${i})" title="${col.label}">
+      <span style="font-size:.5625rem;font-weight:700;color:${col.text};opacity:${i===selectedColor?1:.7}">${col.label}</span>
     </div>`).join('');
 }
 
@@ -986,6 +1081,159 @@ async function loadFuncsFromDB() {
 window.closeFuncModal  = () => document.getElementById('func-modal').style.display='none';
 window.closeFuncOuter  = e => { if(e.target===document.getElementById('func-modal')) closeFuncModal(); };
 
+
+
+// ── Copy Day ─────────────────────────────────
+let copyDaySource = null;
+
+window.openCopyDayModal = (day) => {
+  copyDaySource = day;
+  document.getElementById('copy-from-label').textContent =
+    `${day} de ${ML[vM]} (${WD[new Date(vY,vM,day).getDay()]})`;
+  document.getElementById('copy-to-day').value = '';
+  document.getElementById('copy-append').checked = false;
+  document.getElementById('copy-day-modal').style.display = 'flex';
+};
+window.closeCopyDayModal = () => {
+  document.getElementById('copy-day-modal').style.display = 'none';
+  copyDaySource = null;
+};
+window.confirmCopyDay = () => {
+  const toDay  = parseInt(document.getElementById('copy-to-day').value);
+  const append = document.getElementById('copy-append').checked;
+  const dim    = new Date(vY,vM+1,0).getDate();
+  if (!toDay || toDay < 1 || toDay > dim) { toast('Dia inválido'); return; }
+  if (toDay === copyDaySource)            { toast('Escolha um dia diferente'); return; }
+  const src = sched[copyDaySource] || {};
+  if (append) {
+    const dest = sched[toDay] || {};
+    sched[toDay] = {
+      ...dest,
+      shifts:    [...(dest.shifts||[]),    ...(src.shifts||[]).filter(s=>!(dest.shifts||[]).some(d=>d.key===s.key&&d.time===s.time))],
+      folgam:    [...new Set([...(dest.folgam||[]),    ...(src.folgam||[])])],
+      ausencias: [...(dest.ausencias||[]), ...(src.ausencias||[]).filter(a=>!(dest.ausencias||[]).some(d=>d.key===a.key&&d.tipo===a.tipo))],
+    };
+  } else {
+    sched[toDay] = JSON.parse(JSON.stringify(src));
+  }
+  closeCopyDayModal();
+  autoSave(); renderEditor(); renderSidebar(); runCltChecks();
+  toast(`Dia ${copyDaySource} → Dia ${toDay} copiado`);
+};
+
+
+// ── Turno Manager ─────────────────────────────
+async function loadTurnos() {
+  try {
+    const snap = await getDoc(doc(db, 'configuracoes', `turnos_${lojaId}`));
+    if (snap.exists() && snap.data().turnos?.length) {
+      turnosAtivos = snap.data().turnos;
+      buildDragPanel();
+    }
+  } catch(e) { /* use defaults */ }
+}
+
+async function saveTurnos() {
+  try {
+    await setDoc(doc(db, 'configuracoes', `turnos_${lojaId}`), {
+      turnos: turnosAtivos, updatedAt: new Date().toISOString()
+    });
+    toast('✓ Turnos salvos');
+  } catch(e) { toast('Erro ao salvar turnos'); }
+}
+
+window.openTurnoManager = () => {
+  renderTurnoList();
+  document.getElementById('turno-modal').style.display = 'flex';
+};
+window.closeTurnoModal = () => document.getElementById('turno-modal').style.display = 'none';
+window.closeTurnoOuter = e => { if(e.target===document.getElementById('turno-modal')) closeTurnoModal(); };
+
+function renderTurnoList() {
+  document.getElementById('turno-list').innerHTML = turnosAtivos.map((t,i) => `
+    <div class="turno-mgr-item">
+      <div class="turno-mgr-item__body">
+        <input class="input turno-mgr-item__label" value="${t.label}"
+          onchange="turnosAtivos[${i}].label=this.value;buildDragPanel()"
+          style="height:32px;font-size:.8125rem;font-weight:700;width:90px">
+        <input class="input turno-mgr-item__time" value="${t.value}"
+          onchange="turnosAtivos[${i}].value=this.value;buildDragPanel()"
+          placeholder="08:00–16:20"
+          style="height:32px;font-size:.8125rem;font-family:var(--mono);width:110px">
+      </div>
+      <button class="btn btn--danger btn--sm btn--icon" onclick="deleteTurno(${i})" title="Remover">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+      </button>
+    </div>`).join('');
+}
+
+window.deleteTurno = i => {
+  if (turnosAtivos.length <= 1) { toast('Precisa ter ao menos 1 turno'); return; }
+  turnosAtivos.splice(i, 1);
+  buildDragPanel();
+  renderTurnoList();
+};
+
+window.addTurno = () => {
+  const label = document.getElementById('new-turno-label').value.trim();
+  const value = document.getElementById('new-turno-value').value.trim();
+  if (!label || !value) { toast('Preencha nome e horário'); return; }
+  turnosAtivos.push({ label, value });
+  document.getElementById('new-turno-label').value = '';
+  document.getElementById('new-turno-value').value = '';
+  buildDragPanel();
+  renderTurnoList();
+  toast(`✓ Turno "${label}" adicionado`);
+};
+
+window.saveTurnosAndClose = async () => {
+  await saveTurnos();
+  closeTurnoModal();
+};
+
+
+// ── Mobile tap — chip selection without drag ──────────
+let mobilePendingType = null;
+let mobilePendingData = null;
+
+window.mobileSelectFunc = funcKey => {
+  mobilePendingType = 'func';
+  mobilePendingData = { key: funcKey };
+  toast(`${fByKey(funcKey).label.split(' ')[0]} selecionado — toque num dia`);
+  highlightCells(true);
+};
+
+window.mobileSelectTurno = turno => {
+  mobilePendingType = 'turno';
+  mobilePendingData = turno;
+  toast(`${turno.label} selecionado — toque num dia`);
+  highlightCells(true);
+};
+
+window.mobileAusencia = key => {
+  mobilePendingType = 'ausencia';
+  mobilePendingData = { key };
+  const aus = AUSENCIAS.find(a=>a.key===key);
+  toast(`${aus?.icon} ${aus?.label} — toque num dia`);
+  highlightCells(true);
+};
+
+function highlightCells(on) {
+  document.querySelectorAll('.cal-cell:not(.cal-cell--empty)').forEach(el => {
+    el.style.outline = on ? '2px dashed var(--loja-color)' : '';
+  });
+}
+
+function handleMobileCellTap(day) {
+  if (!mobilePendingType) return;
+  highlightCells(false);
+  const e = { clientX: window.innerWidth/2, clientY: window.innerHeight/2 };
+  if (mobilePendingType === 'func')    { showTurnoPopup(day, mobilePendingData.key, e.clientX, e.clientY); }
+  else if (mobilePendingType === 'turno')  { showFuncSelForTurno(day, mobilePendingData, e); }
+  else if (mobilePendingType === 'ausencia') { showAusenciaSel(day, mobilePendingData.key, e); }
+  mobilePendingType = null;
+  mobilePendingData = null;
+}
 
 // ── Boot ──────────────────────────────────────
 document.getElementById('year-label').textContent=vY;
