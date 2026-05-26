@@ -77,6 +77,10 @@ ESCALA-ONLINE/
 │   ├── assets/
 │   │   ├── icons/
 │   │   └── images/
+│   │          ├── admin.png
+│   │          ├── colaborador.png
+│   │          └── login.png
+│   │  
 │   ├── css/
 │   │   ├── main.css          # Design system: tokens, reset, componentes compartilhados
 │   │   ├── index.css         # Estilos do painel público
@@ -90,10 +94,7 @@ ESCALA-ONLINE/
 │   ├── admin.html            # Painel administrativo
 │   ├── 404.html              # Página de erro
 │   └── manifest.json         # PWA manifest
-├── docs/
-│   ├── admin.png
-│   ├── colaborador.png
-│   └── login.png
+│      
 ├── .gitignore
 ├── firebase.json
 ├── firestore.indexes.json
