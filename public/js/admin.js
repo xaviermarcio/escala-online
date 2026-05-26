@@ -29,7 +29,6 @@ let sched  = {}, schedSnap = {}, meta = {};
 let pubM   = new Set(), draftM = new Set();
 let dragType = null, dragData = null, pendingDrop = null;
 let editorMode = 'drag';
-let modalDay   = {};
 let holEditDay = null;
 let userEmail  = '';
 let ferCache   = {};
@@ -77,8 +76,8 @@ onAuthStateChanged(auth, user => {
     document.getElementById('app-screen').style.display   = 'block';
     buildLojaTabs(lojaId);
     loadIdx().then(() => loadMonth());
-    loadFuncsFromDB();
-    loadTurnos();
+  loadFuncsFromDB();
+  loadTurnos();
   } else {
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('app-screen').style.display   = 'none';
@@ -265,7 +264,7 @@ function runCltChecks() {
   const cont  = document.getElementById('clt-alerts');
   const badge = document.getElementById('clt-badge');
   if (!alerts.length) {
-    cont.innerHTML = '<div class="no-clt">✓ Sem alertas CLT</div>';
+    cont.innerHTML = '<div class="no-alerts">✓ Sem alertas CLT</div>';
     badge.className = 'badge badge--neutral'; badge.textContent = '✓ OK';
     return;
   }
@@ -520,6 +519,7 @@ function renderEditor() {
 }
 
 // ── Drag panel ────────────────────────────────
+function isTouchDevice() { return ('ontouchstart' in window) || navigator.maxTouchPoints > 0; }
 
 function buildDragPanel() {
   const fc=document.getElementById('func-chips'); fc.innerHTML='';
@@ -581,15 +581,22 @@ function onDrop(e,day) {
   dragType=null; dragData=null;
 }
 
+// ── Popup position helper ─────────────────────
+// Posiciona o popup evitando que saia da janela
+function positionPopup(cx, cy, pw, ph) {
+  let left = cx + 12, top = cy - 20;
+  if (left + pw > window.innerWidth  - 12) left = cx - pw - 12;
+  if (top  + ph > window.innerHeight - 12) top  = window.innerHeight - ph - 12;
+  return { left, top };
+}
+
 // ── Turno popup ───────────────────────────────
 function showTurnoPopup(day,funcKey,cx,cy) {
   pendingDrop={day,funcKey}; const f=fByKey(funcKey); const pop=document.getElementById('turno-popup');
   document.getElementById('popup-who').innerHTML=`<div class="turno-popup__who-dot" style="background:${f.bg};border:1px solid ${f.border}"></div><span style="color:${f.text}">${f.label}</span><span style="font-size:.75rem;color:var(--text-muted);margin-left:4px">→ Dia ${day}</span>`;
   document.getElementById('popup-grid').innerHTML=turnosAtivos.map(t=>`<button class="turno-popup__btn" onclick="confirmTurno('${t.value}')"><span class="turno-popup__btn-label">${t.label}</span><span class="turno-popup__btn-time">${t.value}</span></button>`).join('');
   document.getElementById('popup-time').value=''; document.querySelector('.turno-popup__custom')?.style.removeProperty('display');
-  const pw=248,ph=270; let left=cx+12,top=cy-20;
-  if(left+pw>window.innerWidth-12) left=cx-pw-12;
-  if(top+ph>window.innerHeight-12) top=window.innerHeight-ph-12;
+  const {left,top}=positionPopup(cx,cy,248,270);
   pop.style.left=left+'px'; pop.style.top=top+'px'; pop.style.display='block';
   setTimeout(()=>document.getElementById('popup-time').focus(),50);
 }
@@ -616,16 +623,14 @@ function showAusenciaSel(day,ausKey,e) {
       <span class="turno-popup__btn-l">${f.label.split(' ')[0]}</span>
     </button>`).join('');
   document.querySelector('.turno-popup__custom').style.display='none';
-  const cx=e.clientX,cy=e.clientY,pw=248,ph=200;
-  let left=cx+12,top=cy-20;
-  if(left+pw>window.innerWidth-12) left=cx-pw-12;
-  if(top+ph>window.innerHeight-12) top=window.innerHeight-ph-12;
-  pop.style.left=left+'px'; pop.style.top=top+'px'; pop.style.display='block';
+  const {left:al,top:at}=positionPopup(e.clientX,e.clientY,248,200);
+  pop.style.left=al+'px'; pop.style.top=at+'px'; pop.style.display='block';
 }
 
 window.confirmAusencia=(day,funcKey,ausKey)=>{
   if(!sched[day]) sched[day]={shifts:[],folgam:[],ausencias:[]};
   if(!sched[day].ausencias) sched[day].ausencias=[];
+  // Remove existing ausencia for this func on this day
   sched[day].ausencias=sched[day].ausencias.filter(a=>a.key!==funcKey);
   sched[day].ausencias.push({key:funcKey,tipo:ausKey});
   closePopup(); autoSave(); renderEditor(); renderSidebar();
@@ -640,9 +645,8 @@ function showFolgaSel(day,e) {
   document.getElementById('popup-who').innerHTML=`<span style="font-size:.8125rem;font-weight:600">Folga para quem? — Dia ${day}</span>`;
   document.getElementById('popup-grid').innerHTML=avail.map(f=>`<button class="turno-popup__btn" onclick="confirmFolga(${day},'${f.key}')" style="background:${f.bg};color:${f.text};border-color:${f.border}"><span class="turno-popup__btn-label">${f.label}</span></button>`).join('');
   document.querySelector('.turno-popup__custom').style.display='none';
-  const cx=e.clientX,cy=e.clientY,pw=248,ph=180;
-  let left=cx+12,top=cy-20;if(left+pw>window.innerWidth-12)left=cx-pw-12;if(top+ph>window.innerHeight-12)top=window.innerHeight-ph-12;
-  pop.style.left=left+'px';pop.style.top=top+'px';pop.style.display='block';
+  const {left:fl,top:ft}=positionPopup(e.clientX,e.clientY,248,180);
+  pop.style.left=fl+'px'; pop.style.top=ft+'px'; pop.style.display='block';
 }
 window.confirmFolga=(day,funcKey)=>{
   const data=sched[day]||(sched[day]={shifts:[],folgam:[]});
@@ -655,9 +659,8 @@ function showFuncSelForTurno(day,turno,e) {
   document.getElementById('popup-who').innerHTML=`<span style="font-size:.8125rem;font-weight:600">${turno.label} <span style="font-family:var(--font-mono);font-size:.6875rem;color:var(--text-muted)">${turno.value}</span> → Dia ${day}</span>`;
   document.getElementById('popup-grid').innerHTML=funcs.map(f=>`<button class="turno-popup__btn" onclick="confirmFuncForTurno('${f.key}')" style="background:${f.bg};color:${f.text};border-color:${f.border}"><span class="turno-popup__btn-label">${f.label}</span></button>`).join('');
   document.querySelector('.turno-popup__custom').style.display='none';
-  const cx=e.clientX,cy=e.clientY,pw=248,ph=180;
-  let left=cx+12,top=cy-20;if(left+pw>window.innerWidth-12)left=cx-pw-12;if(top+ph>window.innerHeight-12)top=window.innerHeight-ph-12;
-  pop.style.left=left+'px';pop.style.top=top+'px';pop.style.display='block';
+  const {left:sl,top:st}=positionPopup(e.clientX,e.clientY,248,180);
+  pop.style.left=sl+'px'; pop.style.top=st+'px'; pop.style.display='block';
 }
 window.confirmFuncForTurno=funcKey=>{
   if(!pendingDrop)return;const{day,turno}=pendingDrop;
@@ -687,6 +690,8 @@ window.removeShift=(day,idx)=>{if(sched[day]?.shifts){sched[day].shifts.splice(i
 window.removeFolga=(day,idx)=>{if(sched[day]?.folgam){sched[day].folgam.splice(idx,1);autoSave();renderEditor();renderSidebar();runCltChecks();}};
 
 // ── Day modal ─────────────────────────────────
+// modalDay é local a esta seção — não precisa de estado global
+let modalDay = {};
 window.openHolModal = day => {
   holEditDay=day; const data=sched[day]||{};
   document.getElementById('hol-title').textContent=`Dia ${day} — ${WD[new Date(vY,vM,day).getDay()]}, ${ML[vM]}`;
@@ -699,7 +704,7 @@ window.openHolModal = day => {
   modalDay={shifts:JSON.parse(JSON.stringify(data.shifts||[])),folgam:JSON.parse(JSON.stringify(data.folgam||[]))};
   document.getElementById('sfunc').innerHTML=funcs.map(f=>`<option value="${f.key}">${f.label}</option>`).join('');
   document.getElementById('spreset').innerHTML=turnosAtivos.map(t=>`<option value="${t.value}">${t.label} — ${t.value}</option>`).join('');
-  document.getElementById('itime').value=turnosAtivos[0]?.value||'';
+  document.getElementById('itime').value=TURNOS_PADRAO[0]?.value||'';
   renderHolShifts(); renderHolFolgas();
   document.getElementById('hol-modal').style.display='flex';
 };
@@ -933,9 +938,12 @@ window.exportSchedulePDF = () => {
   document.title = prev;
 };
 
+
 // ── Funcionários Manager ──────────────────────
-// Paleta de cores: 12 cores distintas e profissionais.
-// Evita conflito visual com os tipos de ausência (vermelho, azul, roxo, âmbar, verde).
+// Colors palette for new employees
+// Color palette: 12 distinct, high-contrast, professional colors
+// Each has strong readable text, clear background, and visible border
+// Avoids confusion with absence types (red, blue, purple, amber, soft-green)
 const FUNC_COLORS = [
   // Warm spectrum
   { bg:'#fff0f6', text:'#9d174d', border:'#f9a8d4', label:'Rosa'     }, // hot-pink — vivid
@@ -1075,6 +1083,8 @@ async function loadFuncsFromDB() {
 
 window.closeFuncModal  = () => document.getElementById('func-modal').style.display='none';
 window.closeFuncOuter  = e => { if(e.target===document.getElementById('func-modal')) closeFuncModal(); };
+
+
 
 // ── Copy Day ─────────────────────────────────
 let copyDaySource = null;
