@@ -14,7 +14,7 @@ const WDAYS  = ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'];
 const now    = new Date();
 
 // ── State ──────────────────────────────────
-let lojaId   = localStorage.getItem('lr_loja') || null;
+let lojaId   = null;
 let lojaData = null;
 let funcs    = [];
 let filter   = 'todos';
@@ -312,11 +312,8 @@ window.exportPDF = () => {
   document.title = prev;
 };
 
-// ── Day tap expand (mobile) ───────────────────
-// Adds press-and-hold / tap-to-expand on calendar days
-// Works with both touch (mobile) and mouse (desktop preview)
 // ── Day tap expand — 1 tap expands, 1 tap on same day collapses ──
-// Uses native 'click' event — browser already handles tap vs scroll distinction
+// Uses native click event — browser handles tap vs scroll distinction
 let _expandedDay = null;
 
 function setupDayTap() {

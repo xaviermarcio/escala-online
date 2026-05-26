@@ -142,7 +142,7 @@
   font-size: .75rem; font-weight: 700; color: rgba(255,255,255,.5);
   background: transparent; transition: all .15s;
 }
-.loja-tab--on { background: rgba(255,255,255,.18); color: #fff; }
+.loja-tab--active { background: rgba(255,255,255,.18); color: #fff; }
 
 /* ── Layout ── */
 .admin-layout {
