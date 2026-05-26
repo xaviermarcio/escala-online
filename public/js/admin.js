@@ -77,8 +77,8 @@ onAuthStateChanged(auth, user => {
     document.getElementById('app-screen').style.display   = 'block';
     buildLojaTabs(lojaId);
     loadIdx().then(() => loadMonth());
-  loadFuncsFromDB();
-  loadTurnos();
+    loadFuncsFromDB();
+    loadTurnos();
   } else {
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('app-screen').style.display   = 'none';
@@ -193,7 +193,7 @@ window.clearSchedule = async () => {
   } catch(e) { toast('Erro ao limpar'); }
 };
 
-function autoSave(label='') {
+function autoSave() {
   const key = mKey(vY,vM);
   setDoc(doc(db, col(lojaId), key), {
     days: sched, published: meta.published||false,
@@ -265,7 +265,7 @@ function runCltChecks() {
   const cont  = document.getElementById('clt-alerts');
   const badge = document.getElementById('clt-badge');
   if (!alerts.length) {
-    cont.innerHTML = '<div class="no-alerts">✓ Sem alertas CLT</div>';
+    cont.innerHTML = '<div class="no-clt">✓ Sem alertas CLT</div>';
     badge.className = 'badge badge--neutral'; badge.textContent = '✓ OK';
     return;
   }
@@ -520,7 +520,6 @@ function renderEditor() {
 }
 
 // ── Drag panel ────────────────────────────────
-function isTouchDevice() { return ('ontouchstart' in window) || navigator.maxTouchPoints > 0; }
 
 function buildDragPanel() {
   const fc=document.getElementById('func-chips'); fc.innerHTML='';
@@ -627,7 +626,6 @@ function showAusenciaSel(day,ausKey,e) {
 window.confirmAusencia=(day,funcKey,ausKey)=>{
   if(!sched[day]) sched[day]={shifts:[],folgam:[],ausencias:[]};
   if(!sched[day].ausencias) sched[day].ausencias=[];
-  // Remove existing ausencia for this func on this day
   sched[day].ausencias=sched[day].ausencias.filter(a=>a.key!==funcKey);
   sched[day].ausencias.push({key:funcKey,tipo:ausKey});
   closePopup(); autoSave(); renderEditor(); renderSidebar();
@@ -701,7 +699,7 @@ window.openHolModal = day => {
   modalDay={shifts:JSON.parse(JSON.stringify(data.shifts||[])),folgam:JSON.parse(JSON.stringify(data.folgam||[]))};
   document.getElementById('sfunc').innerHTML=funcs.map(f=>`<option value="${f.key}">${f.label}</option>`).join('');
   document.getElementById('spreset').innerHTML=turnosAtivos.map(t=>`<option value="${t.value}">${t.label} — ${t.value}</option>`).join('');
-  document.getElementById('itime').value=TURNOS_PADRAO[0]?.value||'';
+  document.getElementById('itime').value=turnosAtivos[0]?.value||'';
   renderHolShifts(); renderHolFolgas();
   document.getElementById('hol-modal').style.display='flex';
 };
@@ -935,12 +933,9 @@ window.exportSchedulePDF = () => {
   document.title = prev;
 };
 
-
 // ── Funcionários Manager ──────────────────────
-// Colors palette for new employees
-// Color palette: 12 distinct, high-contrast, professional colors
-// Each has strong readable text, clear background, and visible border
-// Avoids confusion with absence types (red, blue, purple, amber, soft-green)
+// Paleta de cores: 12 cores distintas e profissionais.
+// Evita conflito visual com os tipos de ausência (vermelho, azul, roxo, âmbar, verde).
 const FUNC_COLORS = [
   // Warm spectrum
   { bg:'#fff0f6', text:'#9d174d', border:'#f9a8d4', label:'Rosa'     }, // hot-pink — vivid
@@ -1080,8 +1075,6 @@ async function loadFuncsFromDB() {
 
 window.closeFuncModal  = () => document.getElementById('func-modal').style.display='none';
 window.closeFuncOuter  = e => { if(e.target===document.getElementById('func-modal')) closeFuncModal(); };
-
-
 
 // ── Copy Day ─────────────────────────────────
 let copyDaySource = null;
