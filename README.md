@@ -7,13 +7,13 @@ Sistema de gestão de escalas de trabalho para a **La Rose Hortifruti**, com pai
 ## 📸 Screenshots
 
 ### Tela de seleção de loja
-![Seleção de loja](public/assets/images/login.png/login.png)
+![Seleção de loja](/public/assets/images/login.png)
 
 ### Painel do colaborador
-![Painel do colaborador](public/assets/images/colaborador.png/colaborador.png)
+![Painel do colaborador](/public/assets/images/colaborador.png)
 
 ### Painel administrativo
-![Painel administrativo](public/assets/images/admin.png/admin.png)
+![Painel administrativo](/public/assets/images/admin.png)
 
 ---
 
