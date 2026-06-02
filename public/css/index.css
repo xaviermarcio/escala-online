@@ -300,7 +300,7 @@
   font-weight: 700; line-height: 1.35;
 }
 .chip__n { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
-.chip__t { opacity: .8; font-size: .5625rem; white-space: nowrap; flex-shrink: 0; font-weight: 700; }
+.chip__t { opacity: 1; font-size: .625rem; white-space: nowrap; flex-shrink: 0; font-weight: 800; }
 
 /* Filtered — bigger chip */
 .chip--hero {
@@ -310,7 +310,7 @@
   box-shadow: var(--s1);
 }
 .chip--hero .chip__n { font-weight: 800; letter-spacing: -.01em; }
-.chip--hero .chip__t { font-size: .5625rem; opacity: .75; font-weight: 700; }
+.chip--hero .chip__t { font-size: .6875rem; opacity: 1; font-weight: 800; }
 
 /* Off badge (all view) */
 .off-badge {
@@ -410,7 +410,7 @@
     overflow: visible !important; padding: 4px !important;
   }
   .chip { font-size: .5625rem !important; }
-  .chip__t { display: block !important; font-size: .5rem !important; }
+  .chip__t { display: block !important; font-size: .5625rem !important; font-weight: 800 !important; opacity: 1 !important; }
   /* Profile */
   .profile { box-shadow: none !important; border: 1px solid #e2e8f0 !important; }
   /* Show print header and legend */
@@ -479,60 +479,66 @@
   .profile__stat-v { font-size: 1.625rem; }
 }
 
-/* ── Mobile calendar: fixed height, clip overflow ── */
+/* ── Mobile portrait: células compactas, tap para expandir ──
+   Células com altura fixa — conteúdo extra fica oculto.
+   1 toque: expande o dia, mostra todos os turnos, folgas e horários.
+   1 toque no mesmo dia: colapsa. 1 toque em outro dia: troca.
+── */
 @media (max-width: 640px) {
-  .calendar   { gap: 3px; }
-  .cal-wday   { font-size: .5625rem; letter-spacing: .04em; padding: 4px 0; }
+  .calendar { gap: 3px; }
+  .cal-wday { font-size: .5625rem; font-weight: 800; letter-spacing: .04em; padding: 4px 0; }
   .cal-wday.cal-wday--we { font-size: .5625rem; }
-  /* Fixed height — content clips, expanded day reveals more */
-  .cal-day    {
-    min-height: 0;
-    height: 60px;           /* ligeiramente maior para melhor leitura */
-    padding: 4px 4px 3px;
-    border-radius: 6px;
-    overflow: hidden;
+
+  /* Altura fixa: conteúdo extra oculto até o tap */
+  .cal-day {
+    min-height: 0; height: 58px;
+    padding: 4px; border-radius: 6px; overflow: hidden;
   }
   .cal-day--empty { height: 0; }
-  .cal-day__num   { font-size: .625rem; margin-bottom: 2px; }   /* era .5625 */
-  .today-pip      { font-size: .5rem; padding: 1px 3px; }        /* era .4375 */
-  .chip           { font-size: .5rem; padding: 2px 4px; margin-bottom: 1px; border-width: 1px; }  /* era .4375 */
-  .chip__t        { display: none; }
-  .chip__n        { font-size: .5rem; }                          /* era .4375 */
-  .chip--hero     { font-size: .5625rem; padding: 2px 5px; }    /* era .5 */
-  .off-badge      { font-size: .5rem; padding: 2px 4px; margin-bottom: 1px; }  /* era .4375 */
+  .cal-day__num   { font-size: .625rem; font-weight: 800; margin-bottom: 2px; }
+  .today-pip      { font-size: .5rem; padding: 1px 3px; }
+
+  /* Chip compacto: só nome visível */
+  .chip     { font-size: .5rem; padding: 2px 4px; margin-bottom: 1px; border-width: 1px; }
+  .chip__t  { display: none; }
+  .chip__n  { font-size: .5rem; }
+  .chip--hero     { font-size: .5625rem; padding: 2px 5px; }
+  .off-badge      { font-size: .5rem; padding: 2px 4px; margin-bottom: 1px; }
   .off-hero__icon { font-size: 1rem; }
-  .off-hero__text { font-size: .5rem; padding: 1px 5px; }       /* era .4375 */
-  /* Expanded: taller, shows all content + horário */
+  .off-hero__text { font-size: .5rem; padding: 1px 5px; }
+
+  /* Expandido ao tap: cresce, sobe na pilha, revela horários */
   .cal-day--expanded {
     height: auto !important;
-    min-height: 88px !important;
+    min-height: 90px !important;
     overflow: visible !important;
+    transform: scale(1.06);
     z-index: 20;
+    box-shadow: 0 8px 24px rgba(0,0,0,.15) !important;
+    border: 2px solid var(--loja-color) !important;
+    background: var(--surface) !important;
   }
-  .cal-day--expanded .chip     { font-size: .5625rem !important; padding: 2px 5px !important; }
-  .cal-day--expanded .chip__t  { display: block !important; font-size: .5rem !important; }
+  .cal-day--expanded .chip     { font-size: .5625rem !important; padding: 3px 5px !important; }
+  .cal-day--expanded .chip__t  { display: block !important; font-size: .5625rem !important; font-weight: 800 !important; opacity: 1 !important; }
   .cal-day--expanded .chip__n  { font-size: .5625rem !important; }
-  .cal-day--expanded .off-badge{ font-size: .5625rem !important; padding: 2px 5px !important; }
+  .cal-day--expanded .off-badge{ font-size: .5625rem !important; padding: 3px 5px !important; }
 }
 
-@media (max-width: 380px) {
-  .cal-day  { height: 50px; padding: 3px; border-radius: 5px; }
+@media (max-width: 390px) {
   .calendar { gap: 2px; }
-  .chip     { font-size: .4rem; padding: 1px 2px; }
-  .off-badge{ font-size: .4rem; padding: 1px 2px; }
-  .cal-wday { font-size: .5rem; }
+  .cal-day  { height: 54px; padding: 3px; }
+  .chip     { font-size: .4375rem; padding: 1.5px 3px; }
+  .off-badge{ font-size: .4375rem; padding: 1.5px 3px; }
   .page     { padding-left: 8px; padding-right: 8px; }
-  .stats    { gap: 4px; }
-  .stat     { padding: .5rem .5rem; }
-  .stat__value { font-size: 1.125rem; }
 }
 
 @media (max-width: 360px) {
-  .calendar    { gap: 2px; }
-  .cal-day     { min-height: 46px; padding: 2px; }
-  .cal-day__num{ font-size: .4375rem; }
-  .chip        { font-size: .4rem; padding: 1px 2px; }
-  .page        { padding-left: .625rem; padding-right: .625rem; }
+  .calendar { gap: 2px; }
+  .cal-day  { height: 50px; padding: 3px; }
+  .cal-day__num { font-size: .5625rem; }
+  .chip     { font-size: .4rem; padding: 1px 2px; }
+  .off-badge{ font-size: .4rem; padding: 1px 2px; }
+  .page     { padding-left: 7px; padding-right: 7px; }
 }
 
 /* ═══ LANDSCAPE MOBILE ═══════════════════════════════════════════
@@ -574,38 +580,40 @@
   .filter-bar     { padding: .25rem .75rem; margin-bottom: .5rem; }
   .pill           { height: 24px; font-size: .6875rem; padding: 0 8px; }
 
-  /* Calendário landscape: altura automática, horário sempre visível */
-  .calendar       { gap: 2px; }
-  .cal-wday       { font-size: .5rem; padding: 2px 0; }
+  /* Calendário landscape: altura automática, nome + horário sempre visíveis */
+  .calendar       { gap: 3px; }
+  .cal-wday       { font-size: .5625rem; font-weight: 800; padding: 3px 0; }
+  /* height:auto + overflow:hidden — célula cresce com conteúdo, sem vazar */
   .cal-day        {
-    height: auto;          /* sem altura fixa — célula cresce com conteúdo */
-    min-height: 44px;      /* garante altura mínima para dias vazios */
-    padding: 3px 4px;
-    border-radius: 4px; overflow: visible;
+    height: auto; min-height: 44px;
+    padding: 4px 5px; border-radius: 5px; overflow: hidden;
   }
   .cal-day--empty { height: 0; min-height: 0; }
-  .cal-day__num   { font-size: .5rem; margin-bottom: 2px; }
-  .today-pip      { font-size: .375rem; padding: 0 2px; }
-  /* Chip: nome + horário visíveis — há largura suficiente em landscape */
-  .chip           {
-    font-size: .5rem; padding: 2px 4px;
-    margin-bottom: 1px; border-width: 1px;
-    display: flex; align-items: center; gap: 2px;
+  .cal-day__num   { font-size: .5625rem; font-weight: 800; margin-bottom: 3px; }
+  .today-pip      { font-size: .4375rem; padding: 0 3px; }
+  /* Chip: nome à esquerda, horário à direita — igual ao print do desktop */
+  .chip {
+    font-size: .5625rem; padding: 2px 5px;
+    margin-bottom: 2px; border-width: 1px;
+    display: flex; align-items: center; justify-content: space-between; gap: 4px;
   }
-  .chip__n        { font-size: .5rem; }
-  .chip__t        { display: block; font-size: .4375rem; opacity: .8; font-weight: 700; }
-  .off-badge      { font-size: .5rem; padding: 2px 4px; margin-bottom: 1px; }
-  .off-hero__icon { font-size: .875rem; }
-  .off-hero__text { font-size: .4375rem; padding: 1px 4px; }
+  .chip__n  { font-size: .5625rem; font-weight: 700; flex: 1; min-width: 0;
+              white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chip__t  { display: block; font-size: .5625rem; opacity: 1; font-weight: 800;
+              flex-shrink: 0; white-space: nowrap; }
+  .off-badge      { font-size: .5625rem; padding: 2px 5px; margin-bottom: 2px; }
+  .off-hero__icon { font-size: .9375rem; }
+  .off-hero__text { font-size: .5rem; padding: 1px 5px; }
 
-  /* Expanded em landscape: ênfase maior */
+  /* Expanded em landscape — leve destaque, sem escalar para não sobrepor */
   .cal-day--expanded {
-    height: auto !important; min-height: 60px !important;
-    overflow: visible !important; z-index: 20;
-    transform: scale(1.04);
+    z-index: 10;
+    box-shadow: 0 4px 16px rgba(0,0,0,.14) !important;
+    border: 2px solid var(--loja-color) !important;
+    background: var(--surface) !important;
   }
-  .cal-day--expanded .chip    { font-size: .5625rem !important; padding: 2px 4px !important; }
-  .cal-day--expanded .chip__t { display: block !important; font-size: .5rem !important; }
+  .cal-day--expanded .chip    { font-size: .625rem !important; padding: 3px 6px !important; }
+  .cal-day--expanded .chip__t { font-size: .625rem !important; font-weight: 800 !important; opacity: 1 !important; }
 
   /* Legenda: linha horizontal scrollável */
   .legend         { padding: .375rem .75rem; margin-top: .5rem; }
