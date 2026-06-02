@@ -106,11 +106,12 @@ async function render() {
   const aFund   = isF ? fByKey(filter) : null;
 
   // Compute per-person stats
+  // Feriados não pulam mais o dia — folgas e turnos em feriados entram na contagem
   const offDays = [];
   let tShifts=0, tOff=0, feriados=0;
   for (let d=1; d<=dim; d++) {
     const dd=days[d]||{};
-    if (dd.type==='holiday') { feriados++; continue; }
+    if (dd.type==='holiday') feriados++;
     const sh=(dd.shifts||[]).filter(s=>!isF||s.key===filter);
     const fo=(dd.folgam||[]).filter(k=>!isF||k===filter);
     tShifts+=sh.length; tOff+=fo.length;
