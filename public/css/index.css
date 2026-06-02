@@ -487,32 +487,32 @@
   /* Fixed height — content clips, expanded day reveals more */
   .cal-day    {
     min-height: 0;
-    height: 56px;
+    height: 60px;           /* ligeiramente maior para melhor leitura */
     padding: 4px 4px 3px;
     border-radius: 6px;
     overflow: hidden;
   }
   .cal-day--empty { height: 0; }
-  .cal-day__num   { font-size: .5625rem; margin-bottom: 2px; }
-  .today-pip      { font-size: .4375rem; padding: 1px 3px; }
-  .chip           { font-size: .4375rem; padding: 1.5px 3px; margin-bottom: 1px; border-width: 1px; }
+  .cal-day__num   { font-size: .625rem; margin-bottom: 2px; }   /* era .5625 */
+  .today-pip      { font-size: .5rem; padding: 1px 3px; }        /* era .4375 */
+  .chip           { font-size: .5rem; padding: 2px 4px; margin-bottom: 1px; border-width: 1px; }  /* era .4375 */
   .chip__t        { display: none; }
-  .chip__n        { font-size: .4375rem; }
-  .chip--hero     { font-size: .5rem; padding: 2px 4px; }
-  .off-badge      { font-size: .4375rem; padding: 1.5px 3px; margin-bottom: 1px; }
-  .off-hero__icon { font-size: .9375rem; }
-  .off-hero__text { font-size: .4375rem; padding: 1px 5px; }
-  /* Expanded: taller, shows all content, clips nothing */
+  .chip__n        { font-size: .5rem; }                          /* era .4375 */
+  .chip--hero     { font-size: .5625rem; padding: 2px 5px; }    /* era .5 */
+  .off-badge      { font-size: .5rem; padding: 2px 4px; margin-bottom: 1px; }  /* era .4375 */
+  .off-hero__icon { font-size: 1rem; }
+  .off-hero__text { font-size: .5rem; padding: 1px 5px; }       /* era .4375 */
+  /* Expanded: taller, shows all content + horário */
   .cal-day--expanded {
     height: auto !important;
-    min-height: 80px !important;
+    min-height: 88px !important;
     overflow: visible !important;
     z-index: 20;
   }
-  .cal-day--expanded .chip     { font-size: .5rem !important; padding: 2px 4px !important; }
-  .cal-day--expanded .chip__t  { display: block !important; font-size: .4rem !important; }
-  .cal-day--expanded .chip__n  { font-size: .5rem !important; }
-  .cal-day--expanded .off-badge{ font-size: .5rem !important; padding: 2px 4px !important; }
+  .cal-day--expanded .chip     { font-size: .5625rem !important; padding: 2px 5px !important; }
+  .cal-day--expanded .chip__t  { display: block !important; font-size: .5rem !important; }
+  .cal-day--expanded .chip__n  { font-size: .5625rem !important; }
+  .cal-day--expanded .off-badge{ font-size: .5625rem !important; padding: 2px 5px !important; }
 }
 
 @media (max-width: 380px) {
@@ -574,31 +574,38 @@
   .filter-bar     { padding: .25rem .75rem; margin-bottom: .5rem; }
   .pill           { height: 24px; font-size: .6875rem; padding: 0 8px; }
 
-  /* Calendário: aproveitar a largura maior — células com height menor */
+  /* Calendário landscape: altura automática, horário sempre visível */
   .calendar       { gap: 2px; }
   .cal-wday       { font-size: .5rem; padding: 2px 0; }
   .cal-day        {
-    height: 48px; padding: 3px;
-    border-radius: 4px; overflow: hidden;
+    height: auto;          /* sem altura fixa — célula cresce com conteúdo */
+    min-height: 44px;      /* garante altura mínima para dias vazios */
+    padding: 3px 4px;
+    border-radius: 4px; overflow: visible;
   }
-  .cal-day--empty { height: 0; }
-  .cal-day__num   { font-size: .5rem; margin-bottom: 1px; }
+  .cal-day--empty { height: 0; min-height: 0; }
+  .cal-day__num   { font-size: .5rem; margin-bottom: 2px; }
   .today-pip      { font-size: .375rem; padding: 0 2px; }
-  .chip           { font-size: .4rem; padding: 1px 2px; margin-bottom: 1px; border-width: 1px; }
-  .chip__t        { display: none; }
-  .off-badge      { font-size: .4rem; padding: 1px 2px; margin-bottom: 1px; }
-  .off-hero__icon { font-size: .875rem; }
-  .off-hero__text { font-size: .375rem; padding: 1px 4px; }
-
-  /* Expanded em landscape: altura suficiente para ler */
-  .cal-day--expanded {
-    height: auto !important;
-    min-height: 70px !important;
-    overflow: visible !important;
-    z-index: 20;
+  /* Chip: nome + horário visíveis — há largura suficiente em landscape */
+  .chip           {
+    font-size: .5rem; padding: 2px 4px;
+    margin-bottom: 1px; border-width: 1px;
+    display: flex; align-items: center; gap: 2px;
   }
-  .cal-day--expanded .chip    { font-size: .4375rem !important; padding: 2px 3px !important; }
-  .cal-day--expanded .chip__t { display: block !important; font-size: .375rem !important; }
+  .chip__n        { font-size: .5rem; }
+  .chip__t        { display: block; font-size: .4375rem; opacity: .8; font-weight: 700; }
+  .off-badge      { font-size: .5rem; padding: 2px 4px; margin-bottom: 1px; }
+  .off-hero__icon { font-size: .875rem; }
+  .off-hero__text { font-size: .4375rem; padding: 1px 4px; }
+
+  /* Expanded em landscape: ênfase maior */
+  .cal-day--expanded {
+    height: auto !important; min-height: 60px !important;
+    overflow: visible !important; z-index: 20;
+    transform: scale(1.04);
+  }
+  .cal-day--expanded .chip    { font-size: .5625rem !important; padding: 2px 4px !important; }
+  .cal-day--expanded .chip__t { display: block !important; font-size: .5rem !important; }
 
   /* Legenda: linha horizontal scrollável */
   .legend         { padding: .375rem .75rem; margin-top: .5rem; }
