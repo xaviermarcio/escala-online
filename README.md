@@ -1,4 +1,4 @@
-# 🌹 La Rose · Escala Online
+# La Rose · Escala Online
 
 Sistema de gestão de escalas de trabalho para a **La Rose Hortifruti**, com painel administrativo completo e painel público para consulta pelos colaboradores.
 
