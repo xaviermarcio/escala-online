@@ -265,7 +265,7 @@ async function render() {
       });
       (dd.folgam||[]).forEach(k=>{
         const f=fByKey(k);
-        h+=`<div class="off-badge" style="background:var(--green);border-color:var(--green)">⛱ ${f.label.split(' ')[0]}</div>`;
+        h+=`<div class="off-badge" style="background:var(--green);border-color:var(--green)">⛱FOLGA:${f.label.split(' ')[0]}</div>`;
       });
       (dd.ausencias||[]).filter(a=>!isF||a.key===filter).forEach(a=>{
         const f=fByKey(a.key);
