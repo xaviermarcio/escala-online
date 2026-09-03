@@ -1,7 +1,6 @@
-# 🌹 La Rose · Escala Online
+# La Rose · Escala Online
 
-Sistema de gestão de escalas de trabalho para a **La Rose Hortifruti**.  
-Painel administrativo completo para o gestor e painel público para consulta pelos colaboradores.
+Sistema de gestão de escalas de trabalho para a **La Rose Hortifruti** — duas lojas, painel público para colaboradores e painel administrativo completo para o gestor.
 
 🔗 **Produção:** [larose-escala.web.app](https://larose-escala.web.app)
 
@@ -10,16 +9,24 @@ Painel administrativo completo para o gestor e painel público para consulta pel
 ## 📸 Telas do sistema
 
 ### Seleção de loja
+> Colaborador escolhe a loja a cada acesso — sem memorização automática
 
-![Seleção de loja](docs/login.png)
+![Seleção de loja](public/assets/images/login.png)
 
-### Painel do colaborador
+### Painel do colaborador — visão geral
+> Calendário com todos os funcionários, horários e folgas do mês
 
-![Painel colaborador](docs/colaborador.png)
+![Visão geral](public/assets/images/colaborador.png)
+
+### Painel do colaborador — filtro por nome
+> Clicando no nome o colaborador vê só seus turnos, folgas e um resumo do mês
+
+![Filtro colaborador](public/assets/images/filtro-colaborador.png)
 
 ### Painel administrativo
+> Drag & drop para montar a escala, sidebar com funcionários e turnos
 
-![Painel administrativo](docs/admin.png)
+![Painel administrativo](public/assets/images/admin.png)
 
 ---
 
@@ -28,26 +35,28 @@ Painel administrativo completo para o gestor e painel público para consulta pel
 ### Painel do colaborador — público
 - Seleção de loja a cada acesso (Entre Lagos · Itapoã Parque)
 - Calendário mensal com nome e horário de cada turno
-- Filtro por colaborador — exibe turnos, folgas e dias livres individuais
-- Tap para expandir dia no mobile — revela todos os turnos e horários
-- Badges coloridos para ausências: 🏥 Atestado · ✈️ Férias · 📋 Licença · ⚠️ Falta · ⭐ Folga extra
-- Feriados nacionais e do DF destacados em vermelho
+- Filtro por colaborador — resumo individual com total de turnos, folgas e dias livres
+- **Mobile:** toque para expandir o dia e ver todos os horários
+- Feriados nacionais e do DF com destaque vermelho
+- Ausências com badges coloridos: 🏥 Atestado · ✈️ Férias · 📋 Licença · ⚠️ Falta · ⭐ Folga extra
 - Exportar PDF com legenda completa e cores preservadas
-- Responsivo: desktop, tablet, portrait e landscape mobile
+- Responsivo: desktop, tablet e mobile (portrait + landscape)
 
 ### Painel administrativo — autenticado
 - Login com e-mail e senha (Firebase Authentication)
-- Gerenciamento independente das duas lojas
-- **Drag & drop** (desktop) e **tap de dois toques** (mobile) para adicionar turnos e folgas
-- Copiar dia para outro dia (substituir ou mesclar)
+- Gerenciamento independente por loja
+- **Drag & drop** no desktop — arrastar funcionário ou turno para o dia
+- **Tap de dois toques** no mobile — selecionar item e depois o dia
+- Copiar dia para outro dia (substituir ou mesclar conteúdo)
 - Copiar escala do mês anterior
-- Padrão semanal em massa
+- Padrão semanal — preencher semana inteira de uma vez
+- Copiar dia para outro
 - Gerenciar turnos: criar, renomear e deletar com horários personalizados
 - Gerenciar equipe: adicionar e remover funcionários com paleta de 12 cores
 - Feriados detectados via BrasilAPI + feriados municipais do DF
 - Alertas CLT automáticos: folga semanal, descanso mínimo 11h, domingos consecutivos
 - Horas extras calculadas por funcionário no mês
-- Rascunho salvo automaticamente — publicação manual pelo gestor
+- Rascunho salvo automaticamente — publicação manual
 - Histórico de alterações com log antes/depois
 - Arquivo de escalas anteriores
 - Troca de turno entre funcionários com registro
@@ -59,7 +68,7 @@ Painel administrativo completo para o gestor e painel público para consulta pel
 
 | Camada | Tecnologia |
 |---|---|
-| Frontend | HTML5 · CSS3 · JavaScript ES Modules |
+| Frontend | HTML5 · CSS3 · JavaScript ES Modules — sem frameworks |
 | Autenticação | Firebase Authentication |
 | Banco de dados | Cloud Firestore |
 | Hospedagem | Firebase Hosting |
@@ -67,34 +76,37 @@ Painel administrativo completo para o gestor e painel público para consulta pel
 | Feriados | [BrasilAPI](https://brasilapi.com.br) `feriados/v1/{ano}` |
 | PWA | `manifest.json` + ícones SVG |
 
-> Projeto **pure vanilla** — sem frameworks, sem bundler, sem build step.  
-> Deploy direto da pasta `public/`.
+> **Pure vanilla** — sem Node.js runtime, sem bundler, sem build step. Deploy direto da pasta `public/`.
 
 ---
 
-## 📁 Estrutura
+## 📁 Estrutura de arquivos
 
 ```
 ESCALA-ONLINE/
-├── .firebase/               # Cache do Firebase CLI — ignorado pelo Git
-├── docs/                    # Screenshots para o README
+├── .firebase/                       # Cache do Firebase CLI — ignorado pelo Git
+├── docs/                            # Screenshots para o README
 │   ├── login.png
 │   ├── colaborador.png
+│   ├── filtro-colaborador.png
 │   └── admin.png
 ├── public/
+│   ├── assets/
+│   │   ├── icons/
+│   │   └── images/
 │   ├── css/
-│   │   ├── main.css         # Design system: tokens, reset, componentes
-│   │   ├── index.css        # Estilos do painel público
-│   │   └── admin.css        # Estilos do painel administrativo
+│   │   ├── main.css                 # Design system: tokens, reset, componentes
+│   │   ├── index.css                # Estilos do painel público
+│   │   └── admin.css                # Estilos do painel administrativo
 │   ├── js/
-│   │   ├── firebase-config.js          # ⚠️ NÃO commitar — credenciais
+│   │   ├── firebase-config.js       # ⚠️ NÃO commitar — credenciais + config
 │   │   ├── firebase-config.example.js  # Template para novos ambientes
-│   │   ├── app.js           # Lógica do painel público
-│   │   └── admin.js         # Lógica do painel administrativo
+│   │   ├── app.js                   # Lógica do painel público
+│   │   └── admin.js                 # Lógica do painel administrativo
 │   ├── 404.html
-│   ├── admin.html           # Painel administrativo
-│   ├── index.html           # Painel do colaborador
-│   └── manifest.json        # PWA manifest
+│   ├── admin.html                   # Painel administrativo
+│   ├── index.html                   # Painel do colaborador
+│   └── manifest.json                # PWA manifest
 ├── .gitignore
 ├── firebase.json
 ├── firestore.indexes.json
@@ -104,11 +116,11 @@ ESCALA-ONLINE/
 
 ---
 
-## 🔥 Firestore — coleções
+## 🔥 Estrutura do Firestore
 
 ```
 escalas_loja1/              # Escalas da Loja 1 — Entre Lagos
-  {YYYY-MM}
+  {YYYY-MM}/
     days: {
       1: { shifts: [{key, time}], folgam: [key], ausencias: [{key, tipo}] }
       ...
@@ -121,14 +133,10 @@ escalas_loja1/              # Escalas da Loja 1 — Entre Lagos
 escalas_loja2/              # Escalas da Loja 2 — Itapoã Parque
   (mesma estrutura)
 
-historico_loja1/            # Log de alterações — Loja 1
-historico_loja2/            # Log de alterações — Loja 2
-
+historico_loja1/2           # Log de alterações
 configuracoes/
-  config_loja1              # Funcionários customizados
-  config_loja2
-  turnos_loja1              # Turnos customizados
-  turnos_loja2
+  config_loja1/2            # Funcionários customizados por loja
+  turnos_loja1/2            # Turnos customizados por loja
 ```
 
 ---
@@ -140,49 +148,27 @@ configuracoes/
 - [Node.js](https://nodejs.org/) — para o Firebase CLI
 - [Firebase CLI](https://firebase.google.com/docs/cli)
 
-### 1. Clonar
+### Passo a passo
 
 ```bash
+# 1. Clonar
 git clone https://github.com/seu-usuario/escala-online.git
 cd escala-online
-```
 
-### 2. Configurar credenciais
-
-```bash
+# 2. Credenciais — copiar template e preencher
 cp public/js/firebase-config.example.js public/js/firebase-config.js
-```
+# Edite firebase-config.js com os dados do Firebase Console
 
-Edite `firebase-config.js` com os dados do seu projeto:
-
-> **Firebase Console → Configurações do projeto → Seus aplicativos → Config**
-
-```js
-export const FIREBASE_CONFIG = {
-  apiKey:            "sua-api-key",
-  authDomain:        "seu-projeto.firebaseapp.com",
-  projectId:         "seu-projeto",
-  storageBucket:     "seu-projeto.appspot.com",
-  messagingSenderId: "123456789",
-  appId:             "1:123:web:abc"
-};
-```
-
-### 3. Instalar Firebase CLI
-
-```bash
+# 3. Instalar CLI
 npm install -g firebase-tools
 firebase login
-```
 
-### 4. Rodar
-
-```bash
+# 4. Rodar localmente
 firebase serve --only hosting
-# Acesse http://localhost:5000
+# → http://localhost:5000
 ```
 
-> ES Modules exigem servidor HTTP real — abrir via `file://` não funciona.
+> ES Modules exigem servidor HTTP real — abrir via `file://` não funciona por CORS.
 
 ---
 
@@ -203,16 +189,18 @@ firebase deploy --only hosting
 
 ## 🔐 Firebase — configuração inicial
 
-**Autenticação**
-1. Firebase Console → **Authentication → Sign-in method** → Ativar **E-mail/senha**
-2. **Authentication → Users → Add user** → criar o usuário do gestor
+**1. Autenticação**
+```
+Firebase Console → Authentication → Sign-in method → E-mail/senha → Ativar
+Authentication → Users → Add user → criar o gestor
+```
 
-**Firestore rules**
+**2. Firestore rules**
 ```bash
 firebase deploy --only firestore:rules
 ```
 
-**Restringir API Key** — [Google Cloud Console](https://console.cloud.google.com) → APIs e Serviços → Credenciais → Restrições de aplicativo:
+**3. Restringir API Key** — [Google Cloud Console](https://console.cloud.google.com) → APIs e Serviços → Credenciais:
 ```
 https://larose-escala.web.app/*
 https://larose-escala.firebaseapp.com/*
@@ -227,7 +215,7 @@ https://larose-escala.firebaseapp.com/*
 | Loja 1 · Entre Lagos | Verde `#16a34a` | Michele Moreira, Rosanea, Rosilene, Ítalo |
 | Loja 2 · Itapoã Parque | Azul `#2563eb` | Amanda, Maria Paula, Gardênia, Ygor |
 
-> Funcionários são gerenciados pelo botão **Equipe** no admin — salvos no Firestore.
+> Funcionários são gerenciados pelo botão **Equipe** no admin — dados salvos no Firestore por loja.
 
 ---
 
@@ -240,7 +228,20 @@ https://larose-escala.firebaseapp.com/*
 | Folgas por semana | 1 |
 | Base por turno para h. extra | 500 min (8h20) |
 
-> Quando a legislação mudar (5×2 · 40h), ajuste o objeto `CLT` em `firebase-config.js`.
+> Quando a legislação mudar (5×2 · 40h semanais), ajuste o objeto `CLT` em `firebase-config.js`.
+
+---
+
+## 💡 Sugestões de próximos passos
+
+| Melhoria | Impacto | Esforço |
+|---|---|---|
+| **Notificações push** quando a escala é publicada | Alto | Médio |
+| **Histórico de trocas** de turno visível pelo colaborador | Médio | Baixo |
+| **Export XLSX** da escala para o RH | Médio | Baixo |
+| **Separar admin.js em módulos** (auth, data, render, modals) | Manutenção | Alto |
+| **Dark mode** automático por preferência do sistema | UX | Médio |
+| **Publicação agendada** — escala vai ao ar em data programada | Alto | Médio |
 
 ---
 

@@ -14,7 +14,7 @@ const WDAYS  = ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'];
 const now    = new Date();
 
 // ── State ──────────────────────────────────
-let lojaId   = localStorage.getItem('lr_loja') || null;
+let lojaId   = null;
 let lojaData = null;
 let funcs    = [];
 let filter   = 'todos';
@@ -106,7 +106,6 @@ async function render() {
   const aFund   = isF ? fByKey(filter) : null;
 
   // Compute per-person stats
-  // Feriados não pulam mais o dia — folgas e turnos em feriados entram na contagem
   const offDays = [];
   let tShifts=0, tOff=0, feriados=0;
   for (let d=1; d<=dim; d++) {
@@ -229,12 +228,11 @@ async function render() {
     h += `<div class="${cls}">
       <div class="cal-day__num">${d}${isToday?'<span class="today-pip">HOJE</span>':''}</div>`;
 
-    // Feriado: mostra o label mas continua renderizando turnos e folgas normalmente
     if (dd.type==='holiday') {
       h += `<div class="hol-label">🎉 ${dd.label||'Feriado'}</div>`;
     }
-
     if (iAmOff) {
+      // Big folga display
       h += `<div class="off-hero">
         <div class="off-hero__icon">⛱</div>
         <div class="off-hero__text">Folga</div>
@@ -248,6 +246,7 @@ async function render() {
           <span class="chip__t">${s.time}</span>
         </div>`;
       });
+      // Show ausencia for this person in filtered view
       (dd.ausencias||[]).filter(a=>a.key===filter).forEach(a=>{
         const aus=AUSENCIAS.find(x=>x.key===a.tipo)||{icon:'📋',bg:'#f1f5f9',text:'#475569',label:a.tipo};
         h+=`<div class="ausencia-badge ausencia-badge--hero" style="background:${aus.bg};color:${aus.text};border-color:${aus.border}">
@@ -265,7 +264,7 @@ async function render() {
       });
       (dd.folgam||[]).forEach(k=>{
         const f=fByKey(k);
-        h+=`<div class="off-badge" style="background:var(--green);border-color:var(--green)">⛱FOLGA:${f.label.split(' ')[0]}</div>`;
+        h+=`<div class="off-badge" style="background:var(--green);border-color:var(--green)">⛱ ${f.label.split(' ')[0]}</div>`;
       });
       (dd.ausencias||[]).filter(a=>!isF||a.key===filter).forEach(a=>{
         const f=fByKey(a.key);
@@ -314,11 +313,8 @@ window.exportPDF = () => {
   document.title = prev;
 };
 
-// ── Day tap expand (mobile) ───────────────────
-// Adds press-and-hold / tap-to-expand on calendar days
-// Works with both touch (mobile) and mouse (desktop preview)
 // ── Day tap expand — 1 tap expands, 1 tap on same day collapses ──
-// Uses native 'click' event — browser already handles tap vs scroll distinction
+// Uses native click event — browser handles tap vs scroll distinction
 let _expandedDay = null;
 
 function setupDayTap() {
