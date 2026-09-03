@@ -1,4 +1,4 @@
-# 🌹 La Rose · Escala Online
+# La Rose · Escala Online
 
 Sistema de gestão de escalas de trabalho para a **La Rose Hortifruti** — duas lojas, painel público para colaboradores e painel administrativo completo para o gestor.
 
@@ -11,22 +11,22 @@ Sistema de gestão de escalas de trabalho para a **La Rose Hortifruti** — duas
 ### Seleção de loja
 > Colaborador escolhe a loja a cada acesso — sem memorização automática
 
-![Seleção de loja](docs/login.png)
+![Seleção de loja](public/assets/images/login.png)
 
 ### Painel do colaborador — visão geral
 > Calendário com todos os funcionários, horários e folgas do mês
 
-![Visão geral](docs/colaborador.png)
+![Visão geral](public/assets/images/colaborador.png)
 
 ### Painel do colaborador — filtro por nome
 > Clicando no nome o colaborador vê só seus turnos, folgas e um resumo do mês
 
-![Filtro colaborador](docs/filtro-colaborador.png)
+![Filtro colaborador](public/assets/images/filtro-colaborador.png)
 
 ### Painel administrativo
 > Drag & drop para montar a escala, sidebar com funcionários e turnos
 
-![Painel administrativo](docs/admin.png)
+![Painel administrativo](public/assets/images/admin.png)
 
 ---
 
