@@ -110,7 +110,7 @@ async function render() {
   let tShifts=0, tOff=0, feriados=0;
   for (let d=1; d<=dim; d++) {
     const dd=days[d]||{};
-    if (dd.type==='holiday') { feriados++; continue; }
+    if (dd.type==='holiday') feriados++;
     const sh=(dd.shifts||[]).filter(s=>!isF||s.key===filter);
     const fo=(dd.folgam||[]).filter(k=>!isF||k===filter);
     tShifts+=sh.length; tOff+=fo.length;
@@ -230,7 +230,8 @@ async function render() {
 
     if (dd.type==='holiday') {
       h += `<div class="hol-label">🎉 ${dd.label||'Feriado'}</div>`;
-    } else if (iAmOff) {
+    }
+    if (iAmOff) {
       // Big folga display
       h += `<div class="off-hero">
         <div class="off-hero__icon">⛱</div>
@@ -263,7 +264,7 @@ async function render() {
       });
       (dd.folgam||[]).forEach(k=>{
         const f=fByKey(k);
-        h+=`<div class="off-badge" style="background:var(--green);border-color:var(--green)">⛱FOLGA:${f.label.split(' ')[0]}</div>`;
+        h+=`<div class="off-badge" style="background:var(--green);border-color:var(--green)">⛱ ${f.label.split(' ')[0]}</div>`;
       });
       (dd.ausencias||[]).filter(a=>!isF||a.key===filter).forEach(a=>{
         const f=fByKey(a.key);
