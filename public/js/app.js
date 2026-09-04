@@ -132,7 +132,7 @@ async function render() {
   let tShifts=0, tOff=0, feriados=0;
   for (let d=1; d<=dim; d++) {
     const dd=days[d]||{};
-    if (dd.type==='holiday') { feriados++; continue; }
+    if (dd.type==='holiday') feriados++;
     const sh=(dd.shifts||[]).filter(s=>!isF||s.key===filter);
     const fo=(dd.folgam||[]).filter(k=>!isF||k===filter);
     tShifts+=sh.length; tOff+=fo.length;
@@ -250,10 +250,12 @@ async function render() {
     h += `<div class="${cls}">
       <div class="cal-day__num">${d}${isToday?'<span class="today-pip">HOJE</span>':''}</div>`;
 
+    // Feriado: mostra label MAS continua renderizando turnos e folgas normalmente
     if (dd.type==='holiday') {
       h += `<div class="hol-label">🎉 ${dd.label||'Feriado'}</div>`;
-    } else if (iAmOff) {
-      // Big folga display
+    }
+
+    if (iAmOff) {
       h += `<div class="off-hero">
         <div class="off-hero__icon">⛱</div>
         <div class="off-hero__text">Folga</div>
@@ -267,7 +269,6 @@ async function render() {
           <span class="chip__t">${s.time}</span>
         </div>`;
       });
-      // Show ausencia for this person in filtered view
       (dd.ausencias||[]).filter(a=>a.key===filter).forEach(a=>{
         const aus=AUSENCIAS.find(x=>x.key===a.tipo)||{icon:'📋',bg:'#f1f5f9',text:'#475569',label:a.tipo};
         h+=`<div class="ausencia-badge ausencia-badge--hero" style="background:${aus.bg};color:${aus.text};border-color:${aus.border}">
