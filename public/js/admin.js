@@ -1152,23 +1152,52 @@ window.openTurnoManager = () => {
 window.closeTurnoModal = () => document.getElementById('turno-modal').style.display = 'none';
 window.closeTurnoOuter = e => { if(e.target===document.getElementById('turno-modal')) closeTurnoModal(); };
 
+function turnoHours(val) {
+  if (!val) return '';
+  const parts = val.split(/[–\-]/);
+  if (parts.length < 2) return '';
+  const [sh,sm]=(parts[0].trim().split(':').map(Number));
+  const [eh,em]=(parts[1].trim().split(':').map(Number));
+  if (isNaN(sh)||isNaN(eh)) return '';
+  let mins = (eh*60+em)-(sh*60+sm);
+  if (mins<0) mins+=1440;
+  const h=Math.floor(mins/60), m=mins%60;
+  return m>0?`${h}h${m}m`:`${h}h`;
+}
+
 function renderTurnoList() {
-  document.getElementById('turno-list').innerHTML = turnosAtivos.map((t,i) => `
-    <div class="turno-mgr-item">
+  document.getElementById('turno-list').innerHTML = turnosAtivos.map((t,i) => {
+    const hrs = turnoHours(t.value);
+    const isBase = hrs==='8h20m'||hrs==='8h20';
+    const hrsColor = hrs ? (isBase?'var(--green-d)':'var(--amber-d)') : 'var(--red)';
+    return `
+    <div class="turno-mgr-item" id="tmgr-${i}">
       <div class="turno-mgr-item__body">
         <input class="input turno-mgr-item__label" value="${t.label}"
-          onchange="turnosAtivos[${i}].label=this.value;buildDragPanel()"
-          style="height:32px;font-size:.8125rem;font-weight:700;width:90px">
+          onchange="turnosAtivos[${i}].label=this.value.trim();buildDragPanel()"
+          placeholder="Nome" style="height:32px;font-size:.8125rem;font-weight:700;width:88px">
         <input class="input turno-mgr-item__time" value="${t.value}"
-          onchange="turnosAtivos[${i}].value=this.value;buildDragPanel()"
-          placeholder="08:00–16:20"
-          style="height:32px;font-size:.8125rem;font-family:var(--mono);width:110px">
+          onchange="updateTurnoTime(${i},this.value)"
+          placeholder="08:00–16:20" title="Formato: HH:MM–HH:MM"
+          style="height:32px;font-size:.8125rem;font-family:var(--mono);width:112px">
+        ${hrs?`<span style="font-size:.75rem;font-weight:700;color:${hrsColor};white-space:nowrap">${hrs}</span>`:''}
       </div>
       <button class="btn btn--danger btn--sm btn--icon" onclick="deleteTurno(${i})" title="Remover">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
       </button>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
+
+window.updateTurnoTime = (i, val) => {
+  turnosAtivos[i].value = val.trim();
+  buildDragPanel();
+  // Re-render just the hours badge for this item
+  const hrs = turnoHours(val.trim());
+  const el = document.querySelector(`#tmgr-${i} span[style*='font-weight:700']`);
+  if (el && hrs) el.textContent = hrs;
+  renderTurnoList(); // full re-render to update color
+};
 
 window.deleteTurno = i => {
   if (turnosAtivos.length <= 1) { toast('Precisa ter ao menos 1 turno'); return; }
@@ -1180,13 +1209,30 @@ window.deleteTurno = i => {
 window.addTurno = () => {
   const label = document.getElementById('new-turno-label').value.trim();
   const value = document.getElementById('new-turno-value').value.trim();
-  if (!label || !value) { toast('Preencha nome e horário'); return; }
+  if (!label) { toast('Informe o nome do turno'); return; }
+  if (!value) { toast('Informe o horário — ex: 08:00–16:20'); return; }
+  // Basic format validation
+  if (!/^\d{2}:\d{2}[–-]\d{2}:\d{2}$/.test(value.trim())) {
+    toast('Formato inválido — use HH:MM–HH:MM'); return;
+  }
+  if (turnosAtivos.find(t=>t.label.toLowerCase()===label.toLowerCase())) {
+    toast(`Turno "${label}" já existe`); return;
+  }
   turnosAtivos.push({ label, value });
   document.getElementById('new-turno-label').value = '';
   document.getElementById('new-turno-value').value = '';
   buildDragPanel();
   renderTurnoList();
-  toast(`✓ Turno "${label}" adicionado`);
+  toast(`✓ Turno "${label}" criado — clique em Salvar turnos`);
+};
+
+// Duplicate a turno (copy its time, change the name)
+window.duplicateTurno = i => {
+  const t = turnosAtivos[i];
+  const newLabel = t.label + ' (cópia)';
+  turnosAtivos.splice(i+1, 0, { label: newLabel, value: t.value });
+  buildDragPanel();
+  renderTurnoList();
 };
 
 window.saveTurnosAndClose = async () => {

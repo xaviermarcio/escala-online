@@ -38,10 +38,10 @@ function buildSelector() {
     </button>`).join('');
 }
 
-window.selectStore = id => {
+window.selectStore = async id => {
   lojaData = LOJAS.find(l=>l.id===id);
   lojaId   = id;
-  funcs    = FUNCIONARIOS[id] || [];
+  funcs    = FUNCIONARIOS[id] || []; // fallback to static config
   filter   = 'todos';
   cache    = {};
   localStorage.setItem('lr_loja', id);
@@ -49,10 +49,28 @@ window.selectStore = id => {
   document.getElementById('store-screen').style.display = 'none';
   document.getElementById('app-screen').style.display   = 'block';
   document.getElementById('hdr-store').textContent = lojaData.nome;
+  // Load custom funcs from Firestore (added via admin)
+  await loadFuncsForLoja(id);
   render();
 };
 
+// Load funcionários saved in Firestore — overrides static FUNCIONARIOS config
+async function loadFuncsForLoja(id) {
+  try {
+    const snap = await getDoc(doc(db, 'configuracoes', `config_${id}`));
+    if (snap.exists() && snap.data().funcionarios?.length) {
+      funcs = snap.data().funcionarios;
+    }
+  } catch(e) { /* keep static fallback */ }
+}
+
 window.backToStores = () => {
+  // Reset state so next loja starts fresh
+  filter   = 'todos';
+  cache    = {};
+  funcs    = [];
+  lojaId   = null;
+  lojaData = null;
   document.getElementById('store-screen').style.display = 'flex';
   document.getElementById('app-screen').style.display   = 'none';
 };
@@ -78,6 +96,10 @@ async function loadMonth() {
     return cache[key];
   } catch(e) { return null; }
 }
+
+
+// ── Name display helper ─────────────────────
+const capFirst = s => s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : s;
 
 // ── Render ──────────────────────────────────
 async function render() {
@@ -110,7 +132,7 @@ async function render() {
   let tShifts=0, tOff=0, feriados=0;
   for (let d=1; d<=dim; d++) {
     const dd=days[d]||{};
-    if (dd.type==='holiday') feriados++;
+    if (dd.type==='holiday') { feriados++; continue; }
     const sh=(dd.shifts||[]).filter(s=>!isF||s.key===filter);
     const fo=(dd.folgam||[]).filter(k=>!isF||k===filter);
     tShifts+=sh.length; tOff+=fo.length;
@@ -153,7 +175,7 @@ async function render() {
       ${visFuncs.map(f=>`
         <button class="pill ${filter===f.key?'pill--on':''}" onclick="setFilter('${f.key}')">
           <span class="pill__dot" style="background:${f.bg};border-color:${f.border}"></span>
-          ${f.label}
+          ${f.label.split(' ').map(capFirst).join(' ')}
         </button>`).join('')}
     </div>
   </div>`;
@@ -167,7 +189,7 @@ async function render() {
         <div class="profile__who">
           <div class="profile__avatar" style="background:${aFund.bg};color:${aFund.text};border:2px solid ${aFund.border}">${ini}</div>
           <div>
-            <div class="profile__name" style="color:${aFund.text}">${aFund.label}</div>
+            <div class="profile__name" style="color:${aFund.text}">${aFund.label.split(' ').map(capFirst).join(' ')}</div>
             <div class="profile__month">${monthStr}</div>
           </div>
         </div>
@@ -230,19 +252,18 @@ async function render() {
 
     if (dd.type==='holiday') {
       h += `<div class="hol-label">🎉 ${dd.label||'Feriado'}</div>`;
-    }
-    if (iAmOff) {
+    } else if (iAmOff) {
       // Big folga display
       h += `<div class="off-hero">
         <div class="off-hero__icon">⛱</div>
         <div class="off-hero__text">Folga</div>
-        <div class="off-hero__name">${aFund.label.split(' ')[0]}</div>
+        <div class="off-hero__name">${capFirst(aFund.label.split(' ')[0])}</div>
       </div>`;
     } else if (isF) {
       myShifts.forEach(s=>{
         const f=fByKey(s.key);
         h+=`<div class="chip chip--hero" style="background:${f.bg};color:${f.text};border-color:${f.border}">
-          <span class="chip__n">${f.label.split(' ')[0]}</span>
+          <span class="chip__n">${capFirst(f.label.split(' ')[0])}</span>
           <span class="chip__t">${s.time}</span>
         </div>`;
       });
@@ -258,18 +279,18 @@ async function render() {
       (dd.shifts||[]).forEach(s=>{
         const f=fByKey(s.key);
         h+=`<div class="chip" style="background:${f.bg};color:${f.text};border-color:${f.border}">
-          <span class="chip__n">${f.label.split(' ')[0]}</span>
+          <span class="chip__n">${capFirst(f.label.split(' ')[0])}</span>
           <span class="chip__t">${s.time}</span>
         </div>`;
       });
       (dd.folgam||[]).forEach(k=>{
         const f=fByKey(k);
-        h+=`<div class="off-badge" style="background:var(--green);border-color:var(--green)">⛱ ${f.label.split(' ')[0]}</div>`;
+        h+=`<div class="off-badge" style="background:var(--green);border-color:var(--green)">⛱ ${capFirst(f.label.split(' ')[0])}</div>`;
       });
       (dd.ausencias||[]).filter(a=>!isF||a.key===filter).forEach(a=>{
         const f=fByKey(a.key);
         const aus=AUSENCIAS.find(x=>x.key===a.tipo)||{icon:'📋',bg:'#f1f5f9',text:'#475569',border:'#e2e8f0',label:a.tipo};
-        h+=`<div class="ausencia-badge" style="background:${aus.bg};color:${aus.text};border-color:${aus.border}">${aus.icon} ${f.label.split(' ')[0]}</div>`;
+        h+=`<div class="ausencia-badge" style="background:${aus.bg};color:${aus.text};border-color:${aus.border}">${aus.icon} ${capFirst(f.label.split(' ')[0])}</div>`;
       });
     }
     h += `</div>`;
